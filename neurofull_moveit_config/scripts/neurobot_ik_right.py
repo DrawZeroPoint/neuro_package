@@ -67,27 +67,31 @@ class MoveItDemo:
         
         # Allow some leeway in position (meters) and orientation (radians)
         left_arm.set_goal_position_tolerance(0.01)
-        left_arm.set_goal_orientation_tolerance(0.01)
+        left_arm.set_goal_orientation_tolerance(0.1)
         left_arm.set_named_target('left_arm_init')
         left_arm.go()
         joint_positions = left_arm.get_current_joint_values()
 
-        print joint_positions[5]
-        joint_positions1=[joint_positions[0],joint_positions[1],joint_positions[2],joint_positions[3],1.57,joint_positions[5]]
+        joint_positions1 = [0, 0, 0, 0, 1.57, 0]
         left_arm.set_joint_value_target(joint_positions1)
         traj = left_arm.plan()
         left_arm.execute(traj)
         rospy.sleep(1)
-        joint_positions1=[0,0.2,0,1.57,1.57,0]
+        joint_positions = left_arm.get_current_joint_values()
+        joint_positions1 = [-0.4, 0, 0, 1.57, 1.57, 0.4]
         left_arm.set_joint_value_target(joint_positions1)
         traj = left_arm.plan()
         left_arm.execute(traj)
         rospy.sleep(1)
-        # Start the arm in the "resting" pose stored in the SRDF file
-        
         left_gripper.set_joint_value_target(left_gripper_open)
         left_gripper.go()
-        rospy.sleep(1)     
+        rospy.sleep(1)
+        joint_positions = left_arm.get_current_joint_values()
+        joint_positions1 = [0, 0, 0, 1.57, 1.57, 0]
+        left_arm.set_joint_value_target(joint_positions1)
+        traj = left_arm.plan()
+        left_arm.execute(traj)
+        rospy.sleep(3)     
         # Set the target pose.  This particular pose has the gripper oriented horizontally
         # 0.85 meters above the ground, 0.10 meters to the left and 0.20 meters ahead of 
         # the center of the robot base.
@@ -95,9 +99,9 @@ class MoveItDemo:
         target_pose.header.frame_id = reference_frame
         target_pose.header.stamp = rospy.Time.now()     
         global a,b,c,d,e,f,g  
-        target_pose.pose.position.x = 0.5
-        target_pose.pose.position.y = 0.28
-        target_pose.pose.position.z = 1
+        target_pose.pose.position.x = 0.4
+        target_pose.pose.position.y = 0.3
+        target_pose.pose.position.z = 1.05
         target_pose.pose.orientation.x = 0
         target_pose.pose.orientation.y = 0
         target_pose.pose.orientation.z = 0
@@ -120,30 +124,31 @@ class MoveItDemo:
 
         #left_arm.shift_pose_target(0,0.02,left_eef)
         #left_arm.go()
-        
+        left_arm.shift_pose_target(0,0.1,left_eef)
+        left_arm.go()
+        rospy.sleep(2)
         left_gripper.set_joint_value_target(left_gripper_close)
         left_gripper.go()
         rospy.sleep(2)
 
         joint_positions = left_arm.get_current_joint_values()
-
-        print joint_positions[0] 
-        print joint_positions[1]
-        print joint_positions[2]
-        print joint_positions[3] 
-        print joint_positions[4]
-        print joint_positions[5]
-        joint_positions1=[joint_positions[0],joint_positions[1],0,0.8,joint_positions[4],joint_positions[5]]
-        left_arm.set_joint_value_target(joint_positions1)
-        traj = left_arm.plan()
-        left_arm.execute(traj)
-        rospy.sleep(0.1)
-        joint_positions1=[0,0.2,0,1.57,1.57,0]
+        joint_positions1 = [joint_positions[0], joint_positions[1], 0, 1.3,
+                        joint_positions[4], joint_positions[5]]
         left_arm.set_joint_value_target(joint_positions1)
         traj = left_arm.plan()
         left_arm.execute(traj)
         rospy.sleep(1)
-        
+        joint_positions1 = [0, 0, 0, 1.57, 1.57, 0]
+        left_arm.set_joint_value_target(joint_positions1)
+        traj = left_arm.plan()
+        left_arm.execute(traj)
+        rospy.sleep(4)
+        left_gripper.set_joint_value_target(left_gripper_open)
+        left_gripper.go()
+        rospy.sleep(2)
+        left_gripper.set_joint_value_target(left_gripper_close)
+        left_gripper.go()
+        rospy.sleep(2)
         #left_arm.shift_pose_target(2,0.01,left_eef)
         #left_arm.go()
         #rospy.sleep(1)

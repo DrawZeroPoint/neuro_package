@@ -34,11 +34,13 @@ left_gripper_close = [0]
 global aa
 def callback(msg):
       
-    global reset
-    reset=msg.data
-    if reset == 1:
-        moveit_reset()
-def moveit_reset():
+    global gripperopen
+    gripperopen=msg.data
+    if gripperopen == 2:
+        moveit_gripperopen()
+    # spin() simply keeps python from exiting until this node is stopped
+
+def moveit_gripperopen():
     # Initialize the move_group API
     moveit_commander.roscpp_initialize(sys.argv)
 
@@ -67,8 +69,10 @@ def moveit_reset():
     #left_arm.set_named_target('left_arm_init')
     #left_arm.go()
 
-    # Start the arm in the "resting" pose stored in the SRDF file
 
+    joint_positions = left_arm.get_current_joint_values()
+
+    # Start the arm in the "resting" pose stored in the SRDF file
 
     # Set the target pose.  This particular pose has the gripper oriented horizontally
     # 0.85 meters above the ground, 0.10 meters to the left and 0.20 meters ahead of
@@ -99,17 +103,9 @@ def moveit_reset():
 
     # Pause for a second
     #rospy.sleep(2)
-
-    joint_positions = left_arm.get_current_joint_values()
-    joint_positions1=[0,0,0,0,0,0]
-    left_arm.set_joint_value_target(joint_positions1)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(1)
-    left_gripper.set_joint_value_target(left_gripper_close)
+    left_gripper.set_joint_value_target(left_gripper_open)
     left_gripper.go()
     rospy.sleep(1)
-
 
     # Shut down MoveIt cleanly
     #moveit_commander.roscpp_shutdown()
@@ -118,7 +114,7 @@ def moveit_reset():
     #moveit_commander.os._exit(0)
 
 def hhh():
-    rospy.init_node('moveit_yuyinthree')
+    rospy.init_node('moveit_yuyintwo')
     rospy.Subscriber('/call/leftarm',Int32,callback)
     rospy.spin()
 

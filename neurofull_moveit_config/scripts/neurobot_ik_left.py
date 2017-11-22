@@ -46,7 +46,7 @@ left_gripper_close = [0]
 success = False
 
 
-def move_it(a1, b1, c1, d1, e1, f1, g1):
+def move_it(p_x, p_y, p_z, o_x, o_y, o_z, o_w):
     moveit_commander.roscpp_initialize(sys.argv)
 
     # rospy.Subscriber("chatter", Pose, callback)
@@ -69,19 +69,19 @@ def move_it(a1, b1, c1, d1, e1, f1, g1):
 
     # Allow some leeway in position (meters) and orientation (radians)
     left_arm.set_goal_position_tolerance(0.01)
-    left_arm.set_goal_orientation_tolerance(0.01)
+    left_arm.set_goal_orientation_tolerance(0.02)
     left_arm.set_named_target('left_arm_init')
     left_arm.go()
 
     # Start the arm in the "resting" pose stored in the SRDF file
-    joint_positions = left_arm.get_current_joint_values()
-
-    joint_positions1 = [0, 0, 0, 0, 1.57, 0]
-    left_arm.set_joint_value_target(joint_positions1)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(1)
-    joint_positions = left_arm.get_current_joint_values()
+    
+    #joint_positions = left_arm.get_current_joint_values()
+    #joint_positions1 = [-0.4, 0, 0, 1.57, 1.57, 0]
+    #left_arm.set_joint_value_target(joint_positions1)
+    #traj = left_arm.plan()
+    #left_arm.execute(traj)
+    #rospy.sleep(1)
+    #joint_positions = left_arm.get_current_joint_values()
     joint_positions1 = [-0.4, 0, 0, 1.57, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_positions1)
     traj = left_arm.plan()
@@ -89,13 +89,13 @@ def move_it(a1, b1, c1, d1, e1, f1, g1):
     rospy.sleep(1)
     left_gripper.set_joint_value_target(left_gripper_open)
     left_gripper.go()
-    rospy.sleep(1)
-    joint_positions = left_arm.get_current_joint_values()
-    joint_positions1 = [0, 0, 0, 1.57, 1.57, 0]
-    left_arm.set_joint_value_target(joint_positions1)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(3)
+    rospy.sleep(0.7)
+    # joint_positions = left_arm.get_current_joint_values()
+    # joint_positions1 = [0.3, 0, 0, 1.57, 1.57, 0]
+    # left_arm.set_joint_value_target(joint_positions1)
+    # traj = left_arm.plan()
+    # left_arm.execute(traj)
+    # rospy.sleep(1)
     # Set the target pose.  This particular pose has the gripper oriented horizontally
     # 0.85 meters above the ground, 0.10 meters to the left and 0.20 meters ahead of
     # the center of the robot base.
@@ -103,13 +103,13 @@ def move_it(a1, b1, c1, d1, e1, f1, g1):
     target_pose.header.frame_id = reference_frame
     target_pose.header.stamp = rospy.Time.now()
 
-    target_pose.pose.position.x = a1 + 0.03
-    target_pose.pose.position.y = b1 - 0.02
-    target_pose.pose.position.z = c1 + 0.4
-    target_pose.pose.orientation.x = 0
-    target_pose.pose.orientation.y = 0
-    target_pose.pose.orientation.z = 0
-    target_pose.pose.orientation.w = 1
+    target_pose.pose.position.x = p_x #+ 0.05
+    target_pose.pose.position.y = p_y #- 0.02
+    target_pose.pose.position.z = p_z + 0.4
+    target_pose.pose.orientation.x = o_x
+    target_pose.pose.orientation.y = o_y
+    target_pose.pose.orientation.z = o_z
+    target_pose.pose.orientation.w = o_w
 
     # Set the start state to the current state
     left_arm.set_start_state_to_current_state()
@@ -149,7 +149,7 @@ def move_it(a1, b1, c1, d1, e1, f1, g1):
     rospy.sleep(2)
     joint_positions = left_arm.get_current_joint_values()
 
-    joint_positions1 = [joint_positions[0], joint_positions[1], 0, 1.3,
+    joint_positions1 = [joint_positions[0], joint_positions[1], 0, joint_positions[3]+0.5,
                         joint_positions[4], joint_positions[5]]
     left_arm.set_joint_value_target(joint_positions1)
     traj = left_arm.plan()
@@ -165,11 +165,19 @@ def move_it(a1, b1, c1, d1, e1, f1, g1):
     left_arm.go()
     left_arm.set_named_target('left_arm_init')
     left_arm.go()
-    # Shut down MoveIt cleanly
+
+    rospy.sleep(3)
+    left_gripper.set_joint_value_target(left_gripper_open)
+    left_gripper.go()
+
+    rospy.sleep(2)
+    left_gripper.set_joint_value_target(left_gripper_close)
+    left_gripper.go()
+       # Shut down MoveIt cleanly
     # moveit_commander.roscpp_shutdown()
 
     # Exit MoveIt
-    moveit_commander.os._exit(0)
+    #moveit_commander.os._exit(0)
 
 
 def pose_callback(data):
@@ -180,10 +188,12 @@ def pose_callback(data):
     e1 = data.pose.orientation.y
     f1 = data.pose.orientation.z
     g1 = data.pose.orientation.w
+    print '&&&&&&&&&&&&&&&&&&&&&&&'
     move_it(a1, b1, c1, d1, e1, f1, g1)
     global success
     success_pub = rospy.Publisher('/neuro/grasp/success', Bool, queue_size=1)
     success_pub.publish(Bool(success))
+    print '###################################################'
 
 
 def move_left_arm():
@@ -195,5 +205,5 @@ def move_left_arm():
 if __name__ == "__main__":
     try:
         move_left_arm()
-    except KeyboardInterrupt:
-        raise
+    # except KeyboardInterrupt:
+    #     raise

@@ -129,7 +129,9 @@ add_executable(left_arm_trajectory_pub1  src/left_arm1.cpp)
 target_link_libraries(left_arm_trajectory_pub1  ${catkin_LIBRARIES} )
 add_dependencies(left_arm_trajectory_pub1  neuro_bridge_generate_message_cpp)
 
-
+add_executable(left_arm_vel_pub  src/left_arm_vel.cpp)
+target_link_libraries(left_arm_vel_pub  ${catkin_LIBRARIES} )
+add_dependencies(left_arm_vel_pub  neuro_bridge_generate_message_cpp)
 
 add_executable(right_arm_trajectory_pub  src/right_arm_trajectory_pub.cpp)
 target_link_libraries(right_arm_trajectory_pub  ${catkin_LIBRARIES} )

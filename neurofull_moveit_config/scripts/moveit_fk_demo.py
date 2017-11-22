@@ -6,7 +6,7 @@
     Use forward kinemtatics to move the arm to a specified set of joint angles
     
     Created for the Pi Robot Project: http://www.pirobot.org
-    Copytrack (c) 2014 Patrick Goebel.  All tracks reserved.
+    Copyleft (c) 2014 Patrick Goebel.  All lefts reserved.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -37,16 +37,16 @@ class MoveItDemo:
         print "===== It is OK ===="
         rospy.sleep(3)
         
-        # Connect to the track_arm move group
-        track_arm = moveit_commander.MoveGroupCommander('right_arm') 
+        # Connect to the left_arm move group
+        left_arm = moveit_commander.MoveGroupCommander('left_arm') 
         # Set a small tolerance on joint angles
-        track_arm.set_goal_joint_tolerance(0.01)
+        left_arm.set_goal_joint_tolerance(0.01)
         
-        joint_positions1 = [0,0,0,0,0,0.78]
+        joint_positions1 = [0,0,0,1.57,0,0]
         
-        track_arm.set_joint_value_target(joint_positions1)
-        traj = track_arm.plan()
-        track_arm.execute(traj)
+        left_arm.set_joint_value_target(joint_positions1)
+        traj = left_arm.plan()
+        left_arm.execute(traj)
         rospy.sleep(2)
  
         traj_joint = Float32MultiArray()

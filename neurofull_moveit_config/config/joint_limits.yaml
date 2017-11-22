@@ -4,76 +4,76 @@
 joint_limits:
   left_arm_joint1:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   left_arm_joint2:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   left_arm_joint3:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   left_arm_joint4:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   left_arm_joint5:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   left_arm_joint6:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   left_joint_gripper_r:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.7
     has_acceleration_limits: false
     max_acceleration: 0
   right_arm_joint1:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   right_arm_joint2:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   right_arm_joint3:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   right_arm_joint4:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   right_arm_joint5:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   right_arm_joint6:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   right_joint_gripper_l:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0
   right_joint_gripper_r:
     has_velocity_limits: true
-    max_velocity: 1
+    max_velocity: 0.8
     has_acceleration_limits: false
     max_acceleration: 0

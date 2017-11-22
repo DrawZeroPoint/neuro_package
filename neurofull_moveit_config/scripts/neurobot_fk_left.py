@@ -33,7 +33,7 @@ left_gripper_open = [1.57]
 left_gripper_close = [0]
 global aa
 def callback(data):
-      
+
       global a1
       a1=data
       q=MoveItDemo(a1)
@@ -74,7 +74,7 @@ class MoveItDemo:
       
         joint_positions = left_arm.get_current_joint_values()
            
-        joint_positions1=[0,0,0,0,1.577,0]
+        joint_positions1=[0,0,0,0,1.57,0]
         left_arm.set_joint_value_target(joint_positions1)
         traj = left_arm.plan()
         left_arm.execute(traj)
@@ -87,96 +87,45 @@ class MoveItDemo:
         left_gripper.set_joint_value_target(left_gripper_open)
         left_gripper.go()
         rospy.sleep(1)
-        joint_positions1=[0,0,0,1.57,1.77,0]
+        joint_positions1=[0,0,0,1.57,1.57,0]
         left_arm.set_joint_value_target(joint_positions1)
         traj = left_arm.plan()
         left_arm.execute(traj)
-        rospy.sleep(3)
-        #joint_positions1=[-0.57,0,0,1.57,1.77,0.57]
-        #left_arm.set_joint_value_target(joint_positions1)
-        #traj = left_arm.plan()
-        #left_arm.execute(traj)
-        #rospy.sleep(2)
-        # Start the arm in the "resting" pose stored in the SRDF file
-        
-             
-        # Set the target pose.  This particular pose has the gripper oriented horizontally
-        # 0.85 meters above the ground, 0.10 meters to the left and 0.20 meters ahead of 
-        # the center of the robot base.
-        target_pose = PoseStamped()
-        target_pose.header.frame_id = reference_frame
-        target_pose.header.stamp = rospy.Time.now()     
-        global a,b,c,d,e,f,g  
-        target_pose.pose.position.x = 0.45
-        target_pose.pose.position.y = 0.28
-        target_pose.pose.position.z = 1
-        target_pose.pose.orientation.x = 0
-        target_pose.pose.orientation.y = 0
-        target_pose.pose.orientation.z = 0
-        target_pose.pose.orientation.w = 1
-        #Set the start state to the current state
-        left_arm.set_start_state_to_current_state()
-        
-        # Set the goal pose of the end effector to the stored pose
-        left_arm.set_pose_target(target_pose, left_eef)
-        
-        # Plan the trajectory to the goal
-        traj = left_arm.plan()
-        #print traj
-
-        # Execute the planned trajectory
-        #left_arm.execute(traj)
-        
-        # Pause for a second
-        #rospy.sleep(2)
-
-        #left_arm.shift_pose_target(0,0.02,left_eef)
-        #left_arm.go()
-        
-        
+        rospy.sleep(3)    
 
         joint_positions = left_arm.get_current_joint_values()
-
-     
-        joint_positions1=[0.47,0,0,0.65,1.77,0.43]
+        joint_positions1=[0.4,0.1,0,0.65,1.57,0.5]
         left_arm.set_joint_value_target(joint_positions1)
         traj = left_arm.plan()
         left_arm.execute(traj)
-        rospy.sleep(2.5)
-
-        
+        rospy.sleep(2)
 
         left_gripper.set_joint_value_target(left_gripper_close)
         left_gripper.go()
-        rospy.sleep(1)
+        rospy.sleep(2)
 
-        joint_positions1=[0.47,0,0,1.2,1.77,0.43]
+        joint_positions1=[0.47,0,0,1.2,1.57,0.43]
         left_arm.set_joint_value_target(joint_positions1)
         traj = left_arm.plan()
         left_arm.execute(traj)
         rospy.sleep(0.5)
-        joint_positions1=[0,0,0,1.57,1.77,0]
+        joint_positions1=[0,0,0,1.57,1.57,0]
         left_arm.set_joint_value_target(joint_positions1)
         traj = left_arm.plan()
         left_arm.execute(traj)
         rospy.sleep(1)
         
-        #left_arm.shift_pose_target(2,0.01,left_eef)
-        #left_arm.go()
-        #rospy.sleep(1)
-        # Finish up in the resting position  
-        #left_arm.set_named_target('left_arm_pose1')
-        #left_arm.go()
+
 
         # Shut down MoveIt cleanly
-        moveit_commander.roscpp_shutdown()
+        #moveit_commander.roscpp_shutdown()
         
         # Exit MoveIt
         moveit_commander.os._exit(0)
 
 def hhh():
-    rospy.init_node('moveit_yuyin')
-    rospy.Subscriber('/call/grasp',Int32,callback)
+    rospy.init_node('moveit_yuyinone')
+    rospy.Subscriber('/vision/grasp/pose',PoseStamped,callback)
     rospy.spin()
 
 if __name__ == "__main__":
