@@ -16,7 +16,6 @@
 #include "control_msgs/FollowJointTrajectoryAction.h"
 #include "control_msgs/FollowJointTrajectoryActionGoal.h"
 #include <moveit_msgs/PlanningScene.h>
-#include "brics_actuator/JointPositions.h"
 
 #include <boost/units/systems/si/length.hpp>
 #include <boost/units/systems/si/plane_angle.hpp>
@@ -26,13 +25,16 @@
 
 using namespace std;
 
-static const string JOINTNAME_PRE = "left_arm_joint";
-static const uint NUM_ARM_JOINTS = 6;
-vector<control_msgs::FollowJointTrajectoryActionGoal::ConstPtr> trajectories;
+typedef control_msgs::FollowJointTrajectoryActionGoal::ConstPtr TrajPtr;
 
-void Callback(const control_msgs::FollowJointTrajectoryActionGoal::ConstPtr& msg)
+vector<TrajPtr> trajectories;
+
+// Reduce the plan speed by this coeff
+double deceleration_ = 0.5;
+
+void Callback(const TrajPtr& msg)
 {
-  ROS_INFO("callback: Trajectory received");
+  ROS_INFO("Left arm: Trajectory plan received.");
   trajectories.push_back(msg);
 }
 
@@ -40,104 +42,73 @@ int main(int argc,char **argv)
 {
   ros::init(argc,argv,"left_arm_trajectory_controller");
   ros::NodeHandle n;
+  ros::NodeHandle pnh("~");
+  
+  pnh.getParam("deceleration", deceleration_);
+  
+  ros::Subscriber sub = n.subscribe("/left_arm_controller/follow_joint_trajectory/goal", 1, Callback);
 
-  brics_actuator::JointPositions command;
-
-  // For communication with STM32, in which the angle and velocity were defined
-  // by Twist message
+  // Use Twist message to communication with STM32
   geometry_msgs::Twist angle_state;
   geometry_msgs::Twist vel_state;
 
-  vector <brics_actuator::JointValue> armJointPositions;
-  armJointPositions.resize(NUM_ARM_JOINTS);
-  command.positions = armJointPositions;
-
-  // Deprecated
-  ros::Subscriber sub = n.subscribe("/left_arm_controller/follow_joint_trajectory/goal", 1, Callback);
-  ros::Publisher armPositionsPublisher = n.advertise<brics_actuator::JointPositions>("left_arm_joints", 1);
-
-  // Use this
   ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 1);
   ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 1);
 
-  ros::Duration(1).sleep();
-
-  while (n.ok())
-  {
+  while (n.ok()) {
     if(!trajectories.empty()) {
-      control_msgs::FollowJointTrajectoryActionGoal::ConstPtr act_msg;
-      ROS_INFO("new Trajectory");
-      act_msg = trajectories.front(); // 返回当前vector容器中起始元素的引用
-      trajectories.erase(trajectories.begin()); // 从指定容器删除指定位置的元素或某段范围内的元素
-      //cout << "Msg-Header" << endl << *act_msg << endl;
+      TrajPtr act_msg;
+      ROS_INFO("Left arm: Get new trajectory from planning.");
+      
+      // The act_msg contains all trajectories from planning
+      act_msg = trajectories.front();
+      // Clear the temp for the next planning
+      trajectories.erase(trajectories.begin());
 
-      armJointPositions.resize(act_msg->goal.trajectory.joint_names.size());
-      for(int i = 0; i < act_msg->goal.trajectory.joint_names.size(); i++) {
-        armJointPositions[i].joint_uri = act_msg->goal.trajectory.joint_names[i];
-        armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
-      }
-      command.positions = armJointPositions;
-
-      uint pos_count = 0;
-
-      // prepare first point
-      for(int i = 0; i < act_msg->goal.trajectory.joint_names.size();i++) {
-        command.positions[i].value = act_msg->goal.trajectory.points[pos_count].positions[i];
-        //traj.data[i]=(float)act_msg->goal.trajectory.points[pos_count].positions[i];
-      }
-      angle_state.linear.x = command.positions[0].value;
-      angle_state.linear.y = command.positions[1].value;
-      angle_state.linear.z = command.positions[2].value;
-      angle_state.angular.x = command.positions[3].value;
-      angle_state.angular.y = command.positions[4].value;
-      angle_state.angular.z = command.positions[5].value;
+      uint pos_count = 0; // Count state number
       ros::Time start_time = ros::Time::now();
 
       do {
-        // send point
-        //armPositionsPublisher.publish(command);
-
-        pub_angle_state.publish(angle_state);
-        // prepare next point
-        pos_count++;
-        for(int i = 0; i<act_msg->goal.trajectory.joint_names.size();i++)
-        {
-          command.positions[i].value = act_msg->goal.trajectory.points[pos_count].positions[i];
-          // traj.data[i]=(float)act_msg->goal.trajectory.points[pos_count].positions[i];
+        vector<float> state_vel_temp;
+        vector<float> state_angle_temp;
+        
+        for(int i = 0; i < act_msg->goal.trajectory.joint_names.size(); i++) {
+          // For each joint, at state id = pos_count, get its state and fill it into temp
+          state_vel_temp.push_back(act_msg->goal.trajectory.points[pos_count].velocities[i]);
+          state_angle_temp.push_back(act_msg->goal.trajectory.points[pos_count].positions[i]);
         }
-
-        // Use twist as a temp, the meaning of the value is not defined by twist
-        angle_state.linear.x = command.positions[0].value;
-        angle_state.linear.y = command.positions[1].value;
-        angle_state.linear.z = command.positions[2].value;
-        angle_state.angular.x = command.positions[3].value;
-        angle_state.angular.y = command.positions[4].value;
-        angle_state.angular.z = command.positions[5].value;
-
-        // sleep
-        ros::Duration((start_time + act_msg->goal.trajectory.points[pos_count].time_from_start)
-                      - ros::Time::now()).sleep();
+        // Convert to Twist message, first publish velocity, then angle
+        vel_state.linear.x = state_vel_temp[0] * deceleration_;
+        vel_state.linear.y = state_vel_temp[1] * deceleration_;
+        vel_state.linear.z = state_vel_temp[2] * deceleration_;
+        vel_state.angular.x = state_vel_temp[3] * deceleration_;
+        vel_state.angular.y = state_vel_temp[4] * deceleration_;
+        vel_state.angular.z = state_vel_temp[5] * deceleration_;
+        
+        angle_state.linear.x = state_angle_temp[0];
+        angle_state.linear.y = state_angle_temp[1];
+        angle_state.linear.z = state_angle_temp[2];
+        angle_state.angular.x = state_angle_temp[3];
+        angle_state.angular.y = state_angle_temp[4];
+        angle_state.angular.z = state_angle_temp[5];
+        
+        pub_vel_state.publish(vel_state);
+        pub_angle_state.publish(angle_state);
+        
+        // Waiting arm move to position
+        ros::Duration d((start_time + act_msg->goal.trajectory.points[pos_count].time_from_start)
+                        - ros::Time::now());
+        double d_sec = d.toSec();
+        ros::Duration(d_sec / deceleration_).sleep();
+        
+        // Prepare for the next state
+        pos_count++;
       }
-
-      while(pos_count < act_msg->goal.trajectory.points.size() - 1);
-
-      angle_state.linear.x=command.positions[0].value;
-      angle_state.linear.y=command.positions[1].value;
-      angle_state.linear.z=command.positions[2].value;
-      angle_state.angular.x=command.positions[3].value;
-      angle_state.angular.y=command.positions[4].value;
-      angle_state.angular.z=command.positions[5].value;
-
-      //armPositionsPublisher.publish(command);
-      pub_angle_state.publish(angle_state);
-      ros::Duration(0.5).sleep();
+      while(pos_count < act_msg->goal.trajectory.points.size());
+      ROS_INFO("Left arm: Publish trajectory plan finished.");
     }
-    ros::Duration(1).sleep();
+
     ros::spinOnce();
-    //ROS_INFO("Loop count %d", loop_counter);
-    //armPositionsPublisher.publish(command);
   }
-
   return 0;
-
 }
