@@ -42,16 +42,24 @@ int main(int argc,char **argv)
   ros::NodeHandle n;
 
   brics_actuator::JointPositions command;
-  std_msgs::Float32MultiArray  traj;
-  geometry_msgs::Twist traj1;
-  geometry_msgs::Twist traj1_vel;
+
+  // For communication with STM32, in which the angle and velocity were defined
+  // by Twist message
+  geometry_msgs::Twist angle_state;
+  geometry_msgs::Twist vel_state;
+
   vector <brics_actuator::JointValue> armJointPositions;
   armJointPositions.resize(NUM_ARM_JOINTS);
   command.positions = armJointPositions;
-  ros::Subscriber sub = n.subscribe("/left_arm_controller/follow_joint_trajectory/goal",1,Callback);
+
+  // Deprecated
+  ros::Subscriber sub = n.subscribe("/left_arm_controller/follow_joint_trajectory/goal", 1, Callback);
   ros::Publisher armPositionsPublisher = n.advertise<brics_actuator::JointPositions>("left_arm_joints", 1);
-  ros::Publisher pub = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 1);
-  ros::Rate r(10);
+
+  // Use this
+  ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 1);
+  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 1);
+
   ros::Duration(1).sleep();
 
   while (n.ok())
@@ -59,13 +67,12 @@ int main(int argc,char **argv)
     if(!trajectories.empty()) {
       control_msgs::FollowJointTrajectoryActionGoal::ConstPtr act_msg;
       ROS_INFO("new Trajectory");
-      act_msg = trajectories.front(); //返回当前vector容器中起始元素的引用
-      trajectories.erase(trajectories.begin()); //从指定容器删除指定位置的元素或某段范围内的元素
+      act_msg = trajectories.front(); // 返回当前vector容器中起始元素的引用
+      trajectories.erase(trajectories.begin()); // 从指定容器删除指定位置的元素或某段范围内的元素
       //cout << "Msg-Header" << endl << *act_msg << endl;
 
       armJointPositions.resize(act_msg->goal.trajectory.joint_names.size());
-      for(int i = 0; i < act_msg->goal.trajectory.joint_names.size(); i++)
-      {
+      for(int i = 0; i < act_msg->goal.trajectory.joint_names.size(); i++) {
         armJointPositions[i].joint_uri = act_msg->goal.trajectory.joint_names[i];
         armJointPositions[i].unit = boost::units::to_string(boost::units::si::radians);
       }
@@ -78,46 +85,51 @@ int main(int argc,char **argv)
         command.positions[i].value = act_msg->goal.trajectory.points[pos_count].positions[i];
         //traj.data[i]=(float)act_msg->goal.trajectory.points[pos_count].positions[i];
       }
-      traj1.linear.x = command.positions[0].value;
-      traj1.linear.y = command.positions[1].value;
-      traj1.linear.z = command.positions[2].value;
-      traj1.angular.x = command.positions[3].value;
-      traj1.angular.y = command.positions[4].value;
-      traj1.angular.z = command.positions[5].value;
+      angle_state.linear.x = command.positions[0].value;
+      angle_state.linear.y = command.positions[1].value;
+      angle_state.linear.z = command.positions[2].value;
+      angle_state.angular.x = command.positions[3].value;
+      angle_state.angular.y = command.positions[4].value;
+      angle_state.angular.z = command.positions[5].value;
       ros::Time start_time = ros::Time::now();
 
-      do
-      {
+      do {
         // send point
-        armPositionsPublisher.publish(command);
-        pub.publish(traj1);
+        //armPositionsPublisher.publish(command);
+
+        pub_angle_state.publish(angle_state);
         // prepare next point
         pos_count++;
         for(int i = 0; i<act_msg->goal.trajectory.joint_names.size();i++)
         {
           command.positions[i].value = act_msg->goal.trajectory.points[pos_count].positions[i];
-          //traj.data[i]=(float)act_msg->goal.trajectory.points[pos_count].positions[i];
+          // traj.data[i]=(float)act_msg->goal.trajectory.points[pos_count].positions[i];
         }
-        traj1.linear.x = command.positions[0].value;
-        traj1.linear.y = command.positions[1].value;
-        traj1.linear.z = command.positions[2].value;
-        traj1.angular.x = command.positions[3].value;
-        traj1.angular.y = command.positions[4].value;
-        traj1.angular.z = command.positions[5].value;
-        //sleep
-        ros::Duration((start_time+act_msg->goal.trajectory.points[pos_count].time_from_start)
-                      -ros::Time::now()).sleep();
+
+        // Use twist as a temp, the meaning of the value is not defined by twist
+        angle_state.linear.x = command.positions[0].value;
+        angle_state.linear.y = command.positions[1].value;
+        angle_state.linear.z = command.positions[2].value;
+        angle_state.angular.x = command.positions[3].value;
+        angle_state.angular.y = command.positions[4].value;
+        angle_state.angular.z = command.positions[5].value;
+
+        // sleep
+        ros::Duration((start_time + act_msg->goal.trajectory.points[pos_count].time_from_start)
+                      - ros::Time::now()).sleep();
       }
 
       while(pos_count < act_msg->goal.trajectory.points.size() - 1);
-      traj1.linear.x=command.positions[0].value;
-      traj1.linear.y=command.positions[1].value;
-      traj1.linear.z=command.positions[2].value;
-      traj1.angular.x=command.positions[3].value;
-      traj1.angular.y=command.positions[4].value;
-      traj1.angular.z=command.positions[5].value;
-      armPositionsPublisher.publish(command);
-      pub.publish(traj1);
+
+      angle_state.linear.x=command.positions[0].value;
+      angle_state.linear.y=command.positions[1].value;
+      angle_state.linear.z=command.positions[2].value;
+      angle_state.angular.x=command.positions[3].value;
+      angle_state.angular.y=command.positions[4].value;
+      angle_state.angular.z=command.positions[5].value;
+
+      //armPositionsPublisher.publish(command);
+      pub_angle_state.publish(angle_state);
       ros::Duration(0.5).sleep();
     }
     ros::Duration(1).sleep();

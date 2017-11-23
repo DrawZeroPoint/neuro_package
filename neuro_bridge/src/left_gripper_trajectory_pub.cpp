@@ -48,18 +48,14 @@ int main(int argc,char **argv)
   vector <brics_actuator::JointValue> gripperJointPositions;
   gripperJointPositions.resize(NUM_gripper_JOINTS);
   command_gripper.positions = gripperJointPositions;
-  ros::Subscriber gripper_pos_sub=n.subscribe("/left_gripper_controller/follow_joint_trajectory/goal",1000,Callback);
-  ros::Publisher gripperPositionsPublisher=n.advertise<brics_actuator::JointPositions>("gripper_joints",10);
-  //ros::Publisher my_pub=n.advertise<std_msgs::Float32MultiArray>("gripper_pos",10);
-  ros::Publisher gripper_pub=n.advertise<std_msgs::Float32>("gripper_pos",10);
-  ros::Rate r(100);
-  ros::Duration(1).sleep();
-  ros::spinOnce();
+  ros::Subscriber gripper_pos_sub = n.subscribe("/left_gripper_controller/follow_joint_trajectory/goal", 1, Callback);
+  ros::Publisher gripperPositionsPublisher = n.advertise<brics_actuator::JointPositions>("gripper_joints", 1);
+
+  ros::Publisher gripper_pub = n.advertise<std_msgs::Float32>("gripper_pos",1);
 
   while (n.ok())
   {
-    if(!trajectories_gripper.empty())
-    {
+    if(!trajectories_gripper.empty()) {
       control_msgs::FollowJointTrajectoryActionGoal::ConstPtr act_msg_gripper;
       ROS_INFO("new Trajectory");
       act_msg_gripper = trajectories_gripper.front();//返回当前vector容器中起始元素的引用
@@ -86,15 +82,13 @@ int main(int argc,char **argv)
 
       ros::Time start_time = ros::Time::now();
 
-      do
-      {
+      do {
         // send point
         gripperPositionsPublisher.publish(command_gripper);
         gripper_pub.publish(traj_gripper);
         // prepare next point
         pos_count_gripper++;
-        for(int i = 0; i<act_msg_gripper->goal.trajectory.joint_names.size();i++)
-        {
+        for(int i = 0; i<act_msg_gripper->goal.trajectory.joint_names.size();i++) {
           command_gripper.positions[i].value = act_msg_gripper->goal.trajectory.points[pos_count_gripper].positions[i];
           //traj.data[i]=(float)act_msg->goal.trajectory.points[pos_count].positions[i];
         }
@@ -110,12 +104,8 @@ int main(int argc,char **argv)
       gripperPositionsPublisher.publish(command_gripper);
       gripper_pub.publish(traj_gripper);
       ros::Duration(0.05).sleep();
-
     }
-    ros::Duration(1).sleep();
     ros::spinOnce();
-    //ROS_INFO("Loop count %d", loop_counter);
-    //gripperPositionsPublisher.publish(command);
   }
 
   return 0;

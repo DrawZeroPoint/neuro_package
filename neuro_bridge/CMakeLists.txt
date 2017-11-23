@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(neuro_bridge)
 
-## Find catkin macros and libraries
-## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
-## is used, also find other catkin packages
+if (NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE "Debug")
+    message(STATUS "No build type selected, default to ${CMAKE_BUILD_TYPE}")
+endif()
+
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy

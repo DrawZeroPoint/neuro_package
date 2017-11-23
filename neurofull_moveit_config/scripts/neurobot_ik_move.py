@@ -29,13 +29,13 @@ from trajectory_msgs.msg import JointTrajectoryPoint
 from std_msgs.msg import Int32
 from geometry_msgs.msg import PoseStamped, Pose
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
+
 left_gripper_open = [1.57]
 left_gripper_close = [0]
 
+
 def callback(msg):
-      
-    global forward
-    forward=msg.data
+    forward = msg.data
     if forward == 3:
         moveit_forward()
     if forward == 4:
@@ -44,70 +44,77 @@ def callback(msg):
         moveit_left()
     if forward == 6:
         moveit_right()
-    # spin() simply keeps python from exiting until this node is stopped
+        # spin() simply keeps python from exiting until this node is stopped
 
-def moveit_forward(): 
+
+def moveit_forward():
     moveit_commander.roscpp_initialize(sys.argv)
     left_arm = moveit_commander.MoveGroupCommander('left_arm')
     left_gripper = moveit_commander.MoveGroupCommander('left_gripper')
-    left_eef= left_arm.get_end_effector_link()
+    left_eef = left_arm.get_end_effector_link()
     reference_frame = 'base_footprint'
     left_arm.set_pose_reference_frame(reference_frame)
     left_arm.allow_replanning(True)
     left_arm.set_goal_position_tolerance(0.01)
     left_arm.set_goal_orientation_tolerance(0.01)
-    left_arm.shift_pose_target(0,0.05,left_eef)
+    left_arm.shift_pose_target(0, 0.05, left_eef)
     left_arm.go()
     rospy.sleep(1)
-def moveit_backward(): 
+
+
+def moveit_backward():
     moveit_commander.roscpp_initialize(sys.argv)
     left_arm = moveit_commander.MoveGroupCommander('left_arm')
     left_gripper = moveit_commander.MoveGroupCommander('left_gripper')
-    left_eef= left_arm.get_end_effector_link()
+    left_eef = left_arm.get_end_effector_link()
     reference_frame = 'base_footprint'
     left_arm.set_pose_reference_frame(reference_frame)
     left_arm.allow_replanning(True)
     left_arm.set_goal_position_tolerance(0.01)
     left_arm.set_goal_orientation_tolerance(0.01)
-    left_arm.shift_pose_target(0,-0.05,left_eef)
+    left_arm.shift_pose_target(0, -0.05, left_eef)
     left_arm.go()
     rospy.sleep(1)
-def moveit_left(): 
+
+
+def moveit_left():
     moveit_commander.roscpp_initialize(sys.argv)
     left_arm = moveit_commander.MoveGroupCommander('left_arm')
     left_gripper = moveit_commander.MoveGroupCommander('left_gripper')
-    left_eef= left_arm.get_end_effector_link()
+    left_eef = left_arm.get_end_effector_link()
     reference_frame = 'base_footprint'
     left_arm.set_pose_reference_frame(reference_frame)
     left_arm.allow_replanning(True)
     left_arm.set_goal_position_tolerance(0.01)
     left_arm.set_goal_orientation_tolerance(0.01)
-    left_arm.shift_pose_target(1,0.05,left_eef)
+    left_arm.shift_pose_target(1, 0.05, left_eef)
     left_arm.go()
     rospy.sleep(1)
-def moveit_right(): 
+
+
+def moveit_right():
     moveit_commander.roscpp_initialize(sys.argv)
     left_arm = moveit_commander.MoveGroupCommander('left_arm')
     left_gripper = moveit_commander.MoveGroupCommander('left_gripper')
-    left_eef= left_arm.get_end_effector_link()
+    left_eef = left_arm.get_end_effector_link()
     reference_frame = 'base_footprint'
     left_arm.set_pose_reference_frame(reference_frame)
     left_arm.allow_replanning(True)
     left_arm.set_goal_position_tolerance(0.01)
     left_arm.set_goal_orientation_tolerance(0.01)
-    left_arm.shift_pose_target(1,-0.05,left_eef)
+    left_arm.shift_pose_target(1, -0.05, left_eef)
     left_arm.go()
     rospy.sleep(1)
-def hhh():
-    rospy.init_node('moveit_forward')
-    rospy.Subscriber('/call/leftarm',Int32,callback)
+
+
+def init():
+    rospy.init_node('moveit_arm_left_move')
+    rospy.Subscriber('/call/leftarm', Int32, callback)
     rospy.spin()
+
 
 if __name__ == "__main__":
     try:
-        hhh()
+        init()
     except KeyboardInterrupt:
         raise
-
-    
-    
