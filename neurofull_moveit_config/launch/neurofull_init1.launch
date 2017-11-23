@@ -1,9 +1,0 @@
-<launch>
-  <!--node name="neurobot_fk_nihao"  pkg="neurofull_moveit_config" type="neurobot_fk_nihao.py" />
-  <node name="neurobot_fk_zaijian"  pkg="neurofull_moveit_config" type="neurobot_fk_zaijian.py" />
-  <node name="neurobot_ik_left"  pkg="neurofull_moveit_config" type="neurobot_ik_left.py" /-->
-  <node name="neurobot_fk_left"  pkg="neurofull_moveit_config" type="neurobot_fk_left.py" respawn="true"/>
-  <node name="neurobot_fk_left_down"  pkg="neurofull_moveit_config" type="neurobot_fk_left_reset.py" />
-  <node name="neurobot_fk_gripperopen"  pkg="neurofull_moveit_config" type="neurobot_fk_gripperopen.py" />
-  <node name="neurobot_ik_move"  pkg="neurofull_moveit_config" type="neurobot_ik_move.py" />
-</launch>
