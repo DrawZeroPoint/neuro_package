@@ -25,9 +25,6 @@
 
 using namespace std;
 
-static const double INIT_POS[] = {0,0};
-static const string JOINTNAME_PRE = "left_joint_gripper_";
-static const uint NUM_gripper_JOINTS = 1;
 vector<control_msgs::FollowJointTrajectoryActionGoal::ConstPtr> trajectories_gripper;
 
 void Callback(const control_msgs::FollowJointTrajectoryActionGoal::ConstPtr& msg)
@@ -55,7 +52,6 @@ int main(int argc,char **argv)
       trajectories_gripper.erase(trajectories_gripper.begin());
       
       uint pos_count_gripper = 0;
-      ros::Time start_time = ros::Time::now();
       
       do {
         vector<float> state_gripper_temp;
@@ -66,9 +62,6 @@ int main(int argc,char **argv)
         gripper_state.data = state_gripper_temp[0];
         gripper_pub.publish(gripper_state);
         
-        // Wait gripper move
-        ros::Duration((start_time + act_msg_gripper->goal.trajectory.points[pos_count_gripper].time_from_start)
-                      - ros::Time::now()).sleep();
         pos_count_gripper++;
       }
       while(pos_count_gripper < act_msg_gripper->goal.trajectory.points.size());

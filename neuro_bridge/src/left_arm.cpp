@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include <std_msgs/Bool.h>
 #include "std_msgs/String.h"
 #include "std_msgs/Float32.h"
 #include "std_msgs/Float64.h"
@@ -30,8 +31,7 @@ typedef control_msgs::FollowJointTrajectoryActionGoal::ConstPtr TrajPtr;
 vector<TrajPtr> trajectories;
 
 // Reduce the plan speed by this coeff
-double deceleration_ = 0.5;
-
+double deceleration_ = 1.0;
 void Callback(const TrajPtr& msg)
 {
   ROS_INFO("Left arm: Trajectory plan received.");
@@ -55,6 +55,9 @@ int main(int argc,char **argv)
   ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 1);
   ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 1);
 
+  // Result feedback
+  ros::Publisher pub_result = n.advertise<std_msgs::Bool>("/move/grasp/result", 1);
+
   while (n.ok()) {
     if(!trajectories.empty()) {
       TrajPtr act_msg;
@@ -66,7 +69,7 @@ int main(int argc,char **argv)
       trajectories.erase(trajectories.begin());
 
       uint pos_count = 0; // Count state number
-      ros::Time start_time = ros::Time::now();
+      int traj_size = act_msg->goal.trajectory.points.size();
 
       do {
         vector<float> state_vel_temp;
@@ -95,16 +98,16 @@ int main(int argc,char **argv)
         pub_vel_state.publish(vel_state);
         pub_angle_state.publish(angle_state);
         
-        // Waiting arm move to position
-        ros::Duration d((start_time + act_msg->goal.trajectory.points[pos_count].time_from_start)
-                        - ros::Time::now());
-        double d_sec = d.toSec();
-        ros::Duration(d_sec / deceleration_).sleep();
+        // With velocity control, there is no need to add time delay
         
         // Prepare for the next state
         pos_count++;
       }
-      while(pos_count < act_msg->goal.trajectory.points.size());
+      while(pos_count < traj_size);
+
+      std_msgs::Bool flag;
+      flag.data = true;
+      pub_result.publish(flag);
       ROS_INFO("Left arm: Publish trajectory plan finished.");
     }
 

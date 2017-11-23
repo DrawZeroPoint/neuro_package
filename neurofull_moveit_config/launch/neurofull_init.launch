@@ -3,16 +3,16 @@
 
   <include file="$(find neurofull_moveit_config)/launch/move_group.launch"/>
   
-  <node name="left_arm_trajectory_pub" pkg="neuro_bridge" type="left_arm_trajectory_pub" >
+  <node name="left_arm_trajectory_pub" pkg="neuro_bridge" type="left_arm_trajectory_pub" output="screen">
     <!-- Reduce planed speed by this factor -->
-  	<param name="deceleration" value="0.5"/>
+  	<param name="deceleration" value="1.0"/>
   </node>
 
-  <node name="left_gripper_trajectory_pub" pkg="neuro_bridge" type="left_gripper_trajectory_pub"/>
+  <node name="left_gripper_trajectory_pub" pkg="neuro_bridge" type="left_gripper_trajectory_pub" output="screen"/>
 
-  <node name="right_arm_trajectory_pub" pkg="neuro_bridge" type="right_arm_trajectory_pub"/>
+  <node name="right_arm_trajectory_pub" pkg="neuro_bridge" type="right_arm_trajectory_pub" output="screen"/>
 
   <!-- Performing forward kinetic grasp and moving arm and gripper by voice control -->
-  <node name="neurobot_arm_left" pkg="neurofull_moveit_config" type="neurobot_arm_left.py" respawn="true"/>
+  <node name="neurobot_arm_left" pkg="neurofull_moveit_config" type="neurobot_arm_left.py" respawn="true" output="screen"/>
 
 </launch>

@@ -105,7 +105,7 @@ def run_fk():
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(1)
+    rospy.sleep(0.5)
 
     joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
@@ -114,36 +114,33 @@ def run_fk():
     rospy.sleep(3)
 
     left_gripper.set_joint_value_target(left_gripper_open)
-    left_gripper.go()
-    rospy.sleep(1)
+    left_gripper.go()  # open gripper, no need for delay
 
     joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(3)
+    left_arm.execute(traj)  # move forward
+    rospy.sleep(0.5)
 
     joint_pos_tgt = [0.5, 0.1, 0, 0.65, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(3)
+    rospy.sleep(2)  # move forward down
 
     left_gripper.set_joint_value_target(left_gripper_close)
-    left_gripper.go()
-    rospy.sleep(1)
+    left_gripper.go()  # close the gripper, no delay
 
     joint_pos_tgt = [0.47, 0, 0, 1.2, 1.57, 0.33]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(0.5)
+    rospy.sleep(0.5)  # move up
 
     joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(1)
+    left_arm.execute(traj)  # let lower arm horizontal
 
 
 class GraspFK:
@@ -162,11 +159,14 @@ class GraspFK:
         if not self._planed:
             run_fk()
             self._planed = True
+        else:
+            rospy.loginfo('Left arm: Wait current plan to be finished.')
 
-    def _target_result_cb(self, data):
+    @staticmethod
+    def _target_result_cb(data):
         # If result returns true, which means the plan has been finished, reset.
         if data.data:
-            self._planed = False
+            rospy.loginfo('Left arm: Finished one execution.')
 
     def _voice_cb(self, data):
         if data.data == 1:
@@ -174,6 +174,7 @@ class GraspFK:
             self._planed = False
         elif data.data == 2:
             gripper_open(True)
+            self._planed = False
         elif data.data == 3:
             move(0, 0.05)
         elif data.data == 4:
@@ -196,6 +197,7 @@ class NodeMain:
     @staticmethod
     def shutdown():
         rospy.loginfo("Left arm: Shutting down")
+
 
 if __name__ == "__main__":
     try:
