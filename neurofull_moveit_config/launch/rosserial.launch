@@ -1,23 +1,17 @@
 <?xml version="1.0"?>
 
 <launch>
-  <!--node ns="arduino_sudu" name="hj_arduino_sudu" pkg="rosserial_python" type="serial_node.py">
-<param name="port" value="/dev/ttyACM2"/>  
-</node-->
-<node name="ttyUSB0" pkg="rosserial_python" type="serial_node.py"  >
-<param name="port" value="/dev/ttyUSB0"/>
-</node>
 
-<node name="ttyUSB1" pkg="rosserial_python" type="serial_node.py"  >
-<param name="port" value="/dev/ttyUSB1"/>
-</node>
+  <node name="ttyUSB0" pkg="rosserial_python" type="serial_node.py"  >
+    <param name="port" value="/dev/ttyUSB0"/>
+  </node>
 
-<node name="ttyUSB2" pkg="rosserial_python" type="serial_node.py"  >
-<param name="port" value="/dev/ttyUSB2"/>
-</node>
+  <node name="ttyUSB1" pkg="rosserial_python" type="serial_node.py"  >
+    <param name="port" value="/dev/ttyUSB1"/>
+  </node>
 
-<!--node name="ttyUSB3" pkg="rosserial_python" type="serial_node.py"  >
-<param name="port" value="/dev/ttyUSB3"/>
-</node-->
+  <node name="ttyUSB2" pkg="rosserial_python" type="serial_node.py"  >
+    <param name="port" value="/dev/ttyUSB2"/>
+  </node>
 
 </launch>

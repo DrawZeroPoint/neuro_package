@@ -11,30 +11,6 @@
    <!-- Load the URDF/Xacro model of our robot -->
    <param name="robot_description" command="$(find xacro)/xacro.py '$(find neurofull)/urdf/neurofull_test_ikfast.urdf'" />
    
-   <!-- Bring up the arbotix driver with a configuration file appropriate to the robot -->
-   <node name="arbotix" pkg="arbotix_python" type="arbotix_driver" clear_params="true" output="screen">
-      <rosparam file="$(find neurofull_moveit_config)/config/neurofull_test.yaml" command="load" />
-      <param name="sim" value="$(arg sim)" />
-      <param name="port" value="$(arg port)" />
-   </node>
-  
-   <!-- Run a separate controller for the one sided gripper -->
-   <!--node name="gripper_controller" pkg="arbotix_controllers" type="gripper_controller" output="screen">
-      <rosparam>
-         model: dualservo  
-         min_opening: 0.06  
-         max_opening: 0.11  
-         invert_left: false  
-         invert_right: false  
-         center_left: 0.0  
-         center_right: 0.0  
-         pad_width: 0.015  
-         finger_length: 0.095  
-         joint: joint_gripper_l  
-                joint_gripper_r 
-      </rosparam>
-   </node-->  
-
    <!-- Publish the robot state -->
    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
        <param name="publish_frequency" type="double" value="20.0" />

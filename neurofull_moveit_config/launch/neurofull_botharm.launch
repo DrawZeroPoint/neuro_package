@@ -1,5 +1,4 @@
 <launch>
   <include file="$(find neurofull_moveit_config)/launch/neurofull_init.launch"/>
-  <include file="$(find neurofull_moveit_config)/launch/neurofull_init1.launch"/>
   <include file="$(find neurofull_moveit_config)/launch/rosserial.launch"/>
 </launch>

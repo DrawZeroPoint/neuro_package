@@ -37,11 +37,10 @@ left_gripper_close = [0]
 def callback(msg):
     gripper_open = msg.data
     if gripper_open == 2:
-        moveit_gripper_open()
-        # spin() simply keeps python from exiting until this node is stopped
+        voice_gripper()
 
 
-def moveit_gripper_open():
+def voice_gripper():
     # Initialize the move_group API
     moveit_commander.roscpp_initialize(sys.argv)
 
@@ -52,7 +51,7 @@ def moveit_gripper_open():
 
 
 def init():
-    rospy.init_node('moveit_voice_gripper_left')
+    rospy.init_node('neurobot_voice_gripper_left')
     rospy.Subscriber('/call/leftarm', Int32, callback)
     rospy.spin()
 

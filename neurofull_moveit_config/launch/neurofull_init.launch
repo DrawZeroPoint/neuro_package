@@ -1,12 +1,18 @@
 <launch>
   <include file="$(find neurofull)/launch/neurofull.launch"/>
-    <param name="/sim" value="true"/>
+
   <include file="$(find neurofull_moveit_config)/launch/move_group.launch"/>
   
-  <node name="left_arm_trajectory_pub" pkg="neuro_bridge" type="left_arm_trajectory_pub" args="$(find neuro_bridge)/src/left_arm.cpp"/>
-  <!--node name="left_arm_vel_pub" pkg="neuro_bridge" type="left_arm_vel_pub" args="$(find neuro_bridge)/src/left_arm_vel.cpp"/-->
-  <node name="right_arm_trajectory_pub" pkg="neuro_bridge" type="right_arm_trajectory_pub" args="$(find neuro_bridge)/src/right_arm_trajectory_pub.cpp"/>
+  <node name="left_arm_trajectory_pub" pkg="neuro_bridge" type="left_arm_trajectory_pub" >
+    <!-- Reduce planed speed by this factor -->
+  	<param name="deceleration" value="0.5"/>
+  </node>
 
-  <!--node name="both_arm_pos_pub" pkg="neuro_bridge" type="both_arm_pos_pub" args="$(find neuro_bridge/src/both_arm.cpp"/-->
-  <node name="left_gripper_trajectory_pub" pkg="neuro_bridge" type="left_gripper_trajectory_pub" args="$(find neuro_bridge)/src/left_gripper_trajectory_pub.cpp"/>
+  <node name="left_gripper_trajectory_pub" pkg="neuro_bridge" type="left_gripper_trajectory_pub"/>
+
+  <node name="right_arm_trajectory_pub" pkg="neuro_bridge" type="right_arm_trajectory_pub"/>
+
+  <!-- Performing forward kinetic grasp and moving arm and gripper by voice control -->
+  <node name="neurobot_arm_left" pkg="neurofull_moveit_config" type="neurobot_arm_left.py" respawn="true"/>
+
 </launch>
