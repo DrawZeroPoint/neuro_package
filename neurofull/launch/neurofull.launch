@@ -16,7 +16,7 @@
    </node>
    
    <!-- Load the URDF/Xacro model of our robot -->
-   <param name="robot_description" command="$(find xacro)/xacro.py '$(find neurofull)/urdf/neurofull_test_ikfast.urdf'" />
+   <param name="robot_description" command="$(find xacro)/xacro.py '$(find neurofull)/urdf/neurobot.urdf'" />
    
    <!-- Publish the robot state -->
    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">
