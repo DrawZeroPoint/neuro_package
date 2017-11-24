@@ -144,15 +144,15 @@ def run_grasp_fk():
 
 
 class ArmFK:
-    def __init__(self):
+    def __init__(self, ctrl_grasp_pose, ctrl_arm, feed_result):
         self._planed = False
 
         # Callbacks for grasp
-        self._cb_tgt = rospy.Subscriber('/vision/grasp/pose', PoseStamped, self._target_pose_cb)
-        self._cb_result = rospy.Subscriber('/move/grasp/result', Bool, self._target_result_cb)
+        self._cb_tgt = rospy.Subscriber(ctrl_grasp_pose, PoseStamped, self._target_pose_cb)
+        self._cb_result = rospy.Subscriber(feed_result, Bool, self._target_result_cb)
 
         # Callback for receiving voice command
-        self._cb_reset = rospy.Subscriber('/call/leftarm', Int32, self._voice_cb)
+        self._cb_reset = rospy.Subscriber(ctrl_arm, Int32, self._voice_cb)
         rospy.loginfo('Left arm: Ready for forward kinetic.')
 
     def _target_pose_cb(self, pose):
@@ -191,7 +191,16 @@ class NodeMain:
     def __init__(self):
         rospy.init_node('neurobot_arm_left', anonymous=False)
         rospy.on_shutdown(self.shutdown)
-        fk = ArmFK()
+
+        # Get topics
+        vision_grasp_pose = '/ctrl/vision/grasp/pose'
+        voice_ctrl_arm = '/ctrl/voice/arm/left'
+        arm_feed_result = '/feed/arm/left/move/result'
+        rospy.get_param('ctrl_vision_grasp_pose', vision_grasp_pose)
+        rospy.get_param('ctrl_voice_arm_left', voice_ctrl_arm)
+        rospy.get_param('feed_arm_grasp_result', arm_feed_result)
+
+        fk = ArmFK(vision_grasp_pose, voice_ctrl_arm, arm_feed_result)
         rospy.spin()
 
     @staticmethod

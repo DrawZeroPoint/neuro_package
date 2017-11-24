@@ -1,5 +1,5 @@
 #include "ros/ros.h"
-#include <std_msgs/Bool.h>
+#include <std_msgs/Int8.h>
 #include "std_msgs/String.h"
 #include "std_msgs/Float32.h"
 #include "std_msgs/Float64.h"
@@ -56,7 +56,7 @@ int main(int argc,char **argv)
   ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 1);
 
   // Result feedback
-  ros::Publisher pub_result = n.advertise<std_msgs::Bool>("/move/grasp/result", 1);
+  ros::Publisher pub_result = n.advertise<std_msgs::Int8>("/feed/arm/left/move/result", 1);
 
   while (n.ok()) {
     if(!trajectories.empty()) {
@@ -105,8 +105,8 @@ int main(int argc,char **argv)
       }
       while(pos_count < traj_size);
 
-      std_msgs::Bool flag;
-      flag.data = true;
+      std_msgs::Int8 flag;
+      flag.data = 1;
       pub_result.publish(flag);
       ROS_INFO("Left arm: Publish trajectory plan finished.");
     }

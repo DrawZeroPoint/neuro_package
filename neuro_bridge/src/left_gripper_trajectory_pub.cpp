@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include <std_msgs/Int8.h>
 #include "std_msgs/String.h"
 #include "std_msgs/Float32.h"
 #include "std_msgs/Float64.h"
