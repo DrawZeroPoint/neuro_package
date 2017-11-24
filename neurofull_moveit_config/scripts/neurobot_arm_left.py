@@ -24,10 +24,13 @@
 import rospy
 import sys
 import moveit_commander
+from moveit_commander import PlanningSceneInterface
+from moveit_msgs.msg import PlanningScene, ObjectColor
 
 from std_msgs.msg import Bool
 from std_msgs.msg import Int8
 from geometry_msgs.msg import PoseStamped
+from object_recognition_msgs.msg import Table
 
 left_gripper_open = [1.57]
 left_gripper_close = [0]
@@ -53,6 +56,13 @@ left_arm.allow_replanning(True)
 # Allow some leeway in position (meters) and orientation (radians)
 left_arm.set_goal_position_tolerance(0.01)
 left_arm.set_goal_orientation_tolerance(0.01)
+
+# Construct the initial scene object
+scene = PlanningSceneInterface()
+scene_pub = rospy.Publisher('arm/planning_scene', PlanningScene, queue_size=1)
+
+# Publish inverse kinetic result
+ik_result_pub = rospy.Publisher('/feed/arm/left/ik/result', Int8, queue_size=1)
 
 
 def reset():
@@ -99,6 +109,92 @@ def gripper_open(status):
     rospy.sleep(1)
 
 
+def add_table(table):
+    tb = table
+
+    table_id = 'table'
+    size = tb.convex_hull[0]  # geometry_msgs/Point, only contain 1 set value, i.e. the size info
+    pose = tb.pose  # centroid pose of the table
+
+    scene.remove_world_object(table_id)  # Clear previous table
+    scene.add_box(table_id, pose, size)
+
+    # Set the rgb and alpha values given as input
+    color = ObjectColor()
+    color.color.r = 0.8
+    color.color.g = 0
+    color.color.b = 0
+    color.color.a = 1
+
+    # Update the global color dictionary
+    colors = dict()
+    colors[table_id] = color
+    p = PlanningScene()
+    p.is_diff = True
+    for c in colors.values():
+        p.object_colors.append(c)
+    scene_pub.publish(p)
+
+
+def run_grasp_ik(pose):
+    # Use forward kinetic to get to initial position
+    joint_pos_tgt = [0, 0, 0, 0, 1.57, 0]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+    rospy.sleep(0.5)
+
+    joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+    rospy.sleep(3)
+
+    left_gripper.set_joint_value_target(left_gripper_open)
+    left_gripper.go()  # open gripper, no need for delay
+
+    joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)  # move forward
+    rospy.sleep(0.5)
+
+    target_pose = pose  # Input pose is in base_link frame, quick convert it here
+    target_pose.header.frame_id = reference_frame
+    target_pose.header.stamp = rospy.Time.now()
+    target_pose.pose.position.z += 0.4
+
+    left_arm.set_start_state_to_current_state()
+
+    # Set the goal pose of the end effector to the stored pose
+    left_arm.set_pose_target(target_pose, left_eef)
+
+    # Plan the trajectory to the goal
+    traj = left_arm.plan()
+    n_points = len(traj.joint_trajectory.points)
+
+    flag = Int8()
+    if n_points == 0:
+        print 'The traj planning failed.'
+        # Back to initial pose
+        left_arm.set_named_target('left_arm_pose1')
+        left_arm.go()
+        rospy.sleep(0.5)
+        left_arm.set_named_target('left_arm_init')
+        left_arm.go()
+        flag.data = -1
+    else:
+        # Execute the planned trajectory
+        left_arm.execute(traj)
+        rospy.sleep(2)
+        left_gripper.set_joint_value_target(left_gripper_close)
+        left_gripper.go()
+        left_arm.set_named_target('left_arm_pose1')
+        left_arm.go()
+        flag.data = 1
+    ik_result_pub.publish(flag)
+
+
 def run_grasp_fk():
     # Up to down, 6 joints, value range see neurofull_left_ikfast.urdf
     joint_pos_tgt = [0, 0, 0, 0, 1.57, 0]
@@ -143,12 +239,16 @@ def run_grasp_fk():
     left_arm.execute(traj)  # let lower arm horizontal
 
 
-class ArmFK:
-    def __init__(self, ctrl_grasp_pose, ctrl_arm, feed_result):
+class ArmControl:
+    def __init__(self, ctrl_grasp_pose, ctrl_detect_table, ctrl_arm, feed_result,
+                 use_fk):
+        self._use_fk = use_fk
         self._planed = False
 
         # Callbacks for grasp
         self._cb_tgt = rospy.Subscriber(ctrl_grasp_pose, PoseStamped, self._target_pose_cb)
+        self._cb_table = rospy.Subscriber(ctrl_detect_table, Table, self._table_cb)
+
         self._cb_result = rospy.Subscriber(feed_result, Bool, self._target_result_cb)
 
         # Callback for receiving voice command
@@ -157,10 +257,17 @@ class ArmFK:
 
     def _target_pose_cb(self, pose):
         if not self._planed:
-            run_grasp_fk()
+            if self._use_fk:
+                run_grasp_fk()
+            else:
+                run_grasp_ik(pose)
             self._planed = True
         else:
             pass
+
+    @staticmethod
+    def _table_cb(table):
+        add_table(table)
 
     @staticmethod
     def _target_result_cb(data):
@@ -194,13 +301,21 @@ class NodeMain:
 
         # Get topics
         vision_grasp_pose = '/ctrl/vision/grasp/pose'
+        vision_detect_table = '/ctrl/vision/detect/table'
+
         voice_ctrl_arm = '/ctrl/voice/arm/left'
         arm_feed_result = '/feed/arm/left/move/result'
+
         rospy.get_param('ctrl_vision_grasp_pose', vision_grasp_pose)
+        rospy.get_param('ctrl_vision_detect_table', vision_detect_table)
         rospy.get_param('ctrl_voice_arm_left', voice_ctrl_arm)
         rospy.get_param('feed_arm_grasp_result', arm_feed_result)
 
-        fk = ArmFK(vision_grasp_pose, voice_ctrl_arm, arm_feed_result)
+        # Whether use forward kinetic
+        use_fk = True
+        rospy.get_param('use_fk', use_fk)
+
+        ctrl = ArmControl(vision_grasp_pose, vision_detect_table, voice_ctrl_arm, arm_feed_result, use_fk)
         rospy.spin()
 
     @staticmethod
