@@ -108,7 +108,7 @@ def gripper_open(status):
 
 
 def add_table(table):
-    pose = table  # centroid pose of the table
+    pose = table  # centroid pose of the table in base_link
 
     table_id = 'table'
     size = [0.5, 0.8, 1.0]
@@ -117,20 +117,20 @@ def add_table(table):
     scene.add_box(table_id, pose, size)
 
     # Set the rgb and alpha values given as input
-    color = ObjectColor()
-    color.color.r = 0.8
-    color.color.g = 0
-    color.color.b = 0
-    color.color.a = 1
-
-    # Update the global color dictionary
-    colors = dict()
-    colors[table_id] = color
-    p = PlanningScene()
-    p.is_diff = True
-    for c in colors.values():
-        p.object_colors.append(c)
-    scene_pub.publish(p)
+    # color = ObjectColor()
+    # color.color.r = 0.8
+    # color.color.g = 0
+    # color.color.b = 0
+    # color.color.a = 1
+    #
+    # # Update the global color dictionary
+    # colors = dict()
+    # colors[table_id] = color
+    # p = PlanningScene()
+    # p.is_diff = True
+    # for c in colors.values():
+    #     p.object_colors.append(c)
+    # scene_pub.publish(p)
 
 
 def run_grasp_ik(pose):
