@@ -26,7 +26,7 @@ import sys
 import moveit_commander
 
 from std_msgs.msg import Bool
-from std_msgs.msg import Int32
+from std_msgs.msg import Int8
 from geometry_msgs.msg import PoseStamped
 
 left_gripper_open = [1.57]
@@ -152,7 +152,7 @@ class ArmFK:
         self._cb_result = rospy.Subscriber(feed_result, Bool, self._target_result_cb)
 
         # Callback for receiving voice command
-        self._cb_reset = rospy.Subscriber(ctrl_arm, Int32, self._voice_cb)
+        self._cb_reset = rospy.Subscriber(ctrl_arm, Int8, self._voice_cb)
         rospy.loginfo('Left arm: Ready for forward kinetic.')
 
     def _target_pose_cb(self, pose):
