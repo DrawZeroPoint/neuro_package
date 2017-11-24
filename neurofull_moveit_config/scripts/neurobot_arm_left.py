@@ -27,10 +27,8 @@ import moveit_commander
 from moveit_commander import PlanningSceneInterface
 from moveit_msgs.msg import PlanningScene, ObjectColor
 
-from std_msgs.msg import Bool
 from std_msgs.msg import Int8
 from geometry_msgs.msg import PoseStamped
-from object_recognition_msgs.msg import Table
 
 left_gripper_open = [1.57]
 left_gripper_close = [0]
@@ -110,12 +108,11 @@ def gripper_open(status):
 
 
 def add_table(table):
-    tb = table
+    pose = table  # centroid pose of the table
 
     table_id = 'table'
-    size = tb.convex_hull[0]  # geometry_msgs/Point, only contain 1 set value, i.e. the size info
-    pose = tb.pose  # centroid pose of the table
-
+    size = [0.5, 0.8, 1.0]
+    
     scene.remove_world_object(table_id)  # Clear previous table
     scene.add_box(table_id, pose, size)
 
@@ -175,7 +172,7 @@ def run_grasp_ik(pose):
 
     flag = Int8()
     if n_points == 0:
-        print 'The traj planning failed.'
+        rospy.loginfo('Left arm: The traj planning failed.')
         # Back to initial pose
         left_arm.set_named_target('left_arm_pose1')
         left_arm.go()
@@ -247,13 +244,13 @@ class ArmControl:
 
         # Callbacks for grasp
         self._cb_tgt = rospy.Subscriber(ctrl_grasp_pose, PoseStamped, self._target_pose_cb)
-        self._cb_table = rospy.Subscriber(ctrl_detect_table, Table, self._table_cb)
+        self._cb_table = rospy.Subscriber(ctrl_detect_table, PoseStamped, self._table_cb)
 
         self._cb_result = rospy.Subscriber(feed_result, Int8, self._target_result_cb)
 
         # Callback for receiving voice command
         self._cb_reset = rospy.Subscriber(ctrl_arm, Int8, self._voice_cb)
-        rospy.loginfo('Left arm: Ready for forward kinetic.')
+        rospy.loginfo('Left arm: Ready for move.')
 
     def _target_pose_cb(self, pose):
         if not self._planed:
