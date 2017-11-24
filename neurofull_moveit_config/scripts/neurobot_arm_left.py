@@ -112,7 +112,7 @@ def add_table(table):
 
     table_id = 'table'
     size = [0.5, 0.8, 1.0]
-    
+
     scene.remove_world_object(table_id)  # Clear previous table
     scene.add_box(table_id, pose, size)
 

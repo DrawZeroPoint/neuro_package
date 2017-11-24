@@ -6,11 +6,6 @@
   following the order: base, left arm, left gripper to make sure the 
   port id is right. So that base(0), left arm(1), left gripper(2) -->
 
-  <!-- base 0 -->
-  <node name="ttyUSB0" pkg="rosserial_python" type="serial_node.py"  >
-    <param name="port" value="/dev/ttyUSB0"/>
-  </node>
-
   <!-- arm 1 -->
   <node name="ttyUSB1" pkg="rosserial_python" type="serial_node.py"  >
     <param name="port" value="/dev/ttyUSB1"/>
