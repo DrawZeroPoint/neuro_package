@@ -99,7 +99,7 @@ def gripper_open(status):
     rospy.sleep(1)
 
 
-def run_fk():
+def run_grasp_fk():
     # Up to down, 6 joints, value range see neurofull_left_ikfast.urdf
     joint_pos_tgt = [0, 0, 0, 0, 1.57, 0]
     left_arm.set_joint_value_target(joint_pos_tgt)
@@ -143,7 +143,7 @@ def run_fk():
     left_arm.execute(traj)  # let lower arm horizontal
 
 
-class GraspFK:
+class ArmFK:
     def __init__(self):
         self._planed = False
 
@@ -157,10 +157,10 @@ class GraspFK:
 
     def _target_pose_cb(self, pose):
         if not self._planed:
-            run_fk()
+            run_grasp_fk()
             self._planed = True
         else:
-            rospy.loginfo('Left arm: Wait current plan to be finished.')
+            pass
 
     @staticmethod
     def _target_result_cb(data):
@@ -191,7 +191,7 @@ class NodeMain:
     def __init__(self):
         rospy.init_node('neurobot_arm_left', anonymous=False)
         rospy.on_shutdown(self.shutdown)
-        fk = GraspFK()
+        fk = ArmFK()
         rospy.spin()
 
     @staticmethod
