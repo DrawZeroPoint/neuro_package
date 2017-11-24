@@ -249,7 +249,7 @@ class ArmControl:
         self._cb_tgt = rospy.Subscriber(ctrl_grasp_pose, PoseStamped, self._target_pose_cb)
         self._cb_table = rospy.Subscriber(ctrl_detect_table, Table, self._table_cb)
 
-        self._cb_result = rospy.Subscriber(feed_result, Bool, self._target_result_cb)
+        self._cb_result = rospy.Subscriber(feed_result, Int8, self._target_result_cb)
 
         # Callback for receiving voice command
         self._cb_reset = rospy.Subscriber(ctrl_arm, Int8, self._voice_cb)
