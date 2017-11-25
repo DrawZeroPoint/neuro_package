@@ -3,7 +3,7 @@
 """
     moveit_ik_demo.py - Version 0.1 2014-01-14
     
-    Use inverse kinemtatics to move the end effector to a specified pose
+    Use inverse kinematics to move the end effector to a specified pose
     
     Created for the Pi Robot Project: http://www.pirobot.org
     Copyleft (c) 2014 Patrick Goebel.  All lefts reserved.
@@ -58,7 +58,7 @@ left_arm.set_goal_orientation_tolerance(0.01)
 scene = PlanningSceneInterface()
 
 # Publish inverse kinetic result
-ik_result_pub = rospy.Publisher('/feed/arm/left/ik/result', Int8, queue_size=1)
+ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_size=1)
 
 
 def reset():
@@ -151,6 +151,7 @@ def run_grasp_ik(pose):
     n_points = len(traj.joint_trajectory.points)
 
     flag = Int8()
+    flag.data = 0
     if n_points == 0:
         rospy.loginfo('Left arm: The traj planning failed.')
         # Back to initial pose
