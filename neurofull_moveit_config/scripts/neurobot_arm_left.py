@@ -25,7 +25,6 @@ import rospy
 import sys
 import moveit_commander
 from moveit_commander import PlanningSceneInterface
-from moveit_msgs.msg import PlanningScene, ObjectColor
 
 from std_msgs.msg import Int8
 from geometry_msgs.msg import PoseStamped
@@ -57,7 +56,6 @@ left_arm.set_goal_orientation_tolerance(0.01)
 
 # Construct the initial scene object
 scene = PlanningSceneInterface()
-scene_pub = rospy.Publisher('arm/planning_scene', PlanningScene, queue_size=1)
 
 # Publish inverse kinetic result
 ik_result_pub = rospy.Publisher('/feed/arm/left/ik/result', Int8, queue_size=1)
@@ -107,30 +105,12 @@ def gripper_open(status):
     rospy.sleep(1)
 
 
-def add_table(table):
-    pose = table  # centroid pose of the table in base_link
-
+def add_table(pose):
     table_id = 'table'
-    size = [0.5, 0.8, 1.0]
+    size = [0.5, 0.8, pose.pose.position.z * 2]
 
     scene.remove_world_object(table_id)  # Clear previous table
     scene.add_box(table_id, pose, size)
-
-    # Set the rgb and alpha values given as input
-    # color = ObjectColor()
-    # color.color.r = 0.8
-    # color.color.g = 0
-    # color.color.b = 0
-    # color.color.a = 1
-    #
-    # # Update the global color dictionary
-    # colors = dict()
-    # colors[table_id] = color
-    # p = PlanningScene()
-    # p.is_diff = True
-    # for c in colors.values():
-    #     p.object_colors.append(c)
-    # scene_pub.publish(p)
 
 
 def run_grasp_ik(pose):
