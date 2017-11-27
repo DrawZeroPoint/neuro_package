@@ -32,6 +32,9 @@ from geometry_msgs.msg import PoseStamped
 left_gripper_open = [1.57]
 left_gripper_close = [0]
 
+# frame distance in z direction
+link_to_foot_ = 0.465
+
 # Initialize the move_group API
 moveit_commander.roscpp_initialize(sys.argv)
 
@@ -107,7 +110,7 @@ def gripper_open(status):
 
 def add_table(pose):
     table_id = 'table'
-    size = [0.5, 0.8, pose.pose.position.z * 2]
+    size = [0.5, 0.8, (pose.pose.position.z + link_to_foot_) * 2]
 
     scene.remove_world_object(table_id)  # Clear previous table
     scene.add_box(table_id, pose, size)
@@ -139,7 +142,7 @@ def run_grasp_ik(pose):
     target_pose = pose  # Input pose is in base_link frame, quick convert it here
     target_pose.header.frame_id = reference_frame
     target_pose.header.stamp = rospy.Time.now()
-    target_pose.pose.position.z += 0.465
+    target_pose.pose.position.z += link_to_foot_  # base_link is 0.465m higher than base_footprint
 
     left_arm.set_start_state_to_current_state()
 
