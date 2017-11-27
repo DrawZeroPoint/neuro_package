@@ -296,7 +296,7 @@ class NodeMain:
         rospy.get_param('feed_arm_grasp_result', arm_feed_result)
 
         # Whether use forward kinetic
-        use_fk = True
+        use_fk = False
         rospy.get_param('use_fk', use_fk)
 
         ctrl = ArmControl(vision_grasp_pose, vision_detect_table, voice_ctrl_arm, arm_feed_result, use_fk)
