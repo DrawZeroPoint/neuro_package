@@ -45,7 +45,7 @@ left_arm = moveit_commander.MoveGroupCommander('left_arm')
 left_gripper = moveit_commander.MoveGroupCommander('left_gripper')
 
 # Set the reference frame for pose targets
-reference_frame = 'base_footprint'
+reference_frame = 'base_link'
 # Set the left arm reference frame accordingly
 left_arm.set_pose_reference_frame(reference_frame)
 
@@ -112,6 +112,7 @@ def gripper_open(status):
 
 def add_table(pose):
     table_id = 'table'
+    # position.z is in base_link frame
     size = [0.5, 0.8, (pose.pose.position.z + link_to_foot_) * 2]
 
     scene.remove_world_object(table_id)  # Clear previous table
@@ -141,10 +142,10 @@ def run_grasp_ik(pose):
     left_arm.execute(traj)  # move forward
     rospy.sleep(0.5)
 
-    target_pose = pose  # Input pose is in base_link frame, quick convert it here
+    target_pose = pose  # Input pose is in base_link frame
     target_pose.header.frame_id = reference_frame
     target_pose.header.stamp = rospy.Time.now()
-    target_pose.pose.position.z += link_to_foot_  # base_link is 0.465m higher than base_footprint
+    # base_link is 0.465m higher than base_footprint
 
     left_arm.set_start_state_to_current_state()
 
