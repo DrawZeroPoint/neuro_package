@@ -296,6 +296,7 @@ class NodeMain:
         rospy.get_param('~ctrl_vision_detect_table', vision_detect_table)
         rospy.get_param('~ctrl_voice_arm_left', voice_ctrl_arm)
         rospy.get_param('~feed_arm_grasp_result', arm_feed_result)
+        rospy.get_param('~link_to_foot', link_to_foot_)
 
         # Whether use forward kinetic
         use_fk = True
