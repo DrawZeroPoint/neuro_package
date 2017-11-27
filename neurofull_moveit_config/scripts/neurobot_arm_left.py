@@ -38,6 +38,8 @@ link_to_foot_ = 0.465
 # Initialize the move_group API
 moveit_commander.roscpp_initialize(sys.argv)
 
+rospy.sleep(6)  # Wait moveit to start up
+
 # Initialize the move group for the left arm
 left_arm = moveit_commander.MoveGroupCommander('left_arm')
 left_gripper = moveit_commander.MoveGroupCommander('left_gripper')
