@@ -15,12 +15,13 @@
   <!-- Performing forward kinetic grasp and moving arm and gripper by voice control -->
   <node name="neurobot_arm_left" pkg="neurofull_moveit_config" type="neurobot_arm_left.py" respawn="true" output="screen">
     <!-- Topics for communication -->
-    <param name="ctrl_vision_grasp_pose" value="/ctrl/vision/grasp/pose"/>
-    <param name="ctrl_vision_detect_table" value="/ctrl/vision/detect/table"/>
-    <param name="ctrl_voice_arm_left" value="/ctrl/voice/arm/left"/>
-    <param name="feed_arm_grasp_result" value="/feed/arm/left/move/result"/>
-    <!-- If using forward kinetic -->
-    <param name="use_fk" value="false"/>
+    <param name="ctrl_vision_grasp_pose" value="/ctrl/vision/grasp/pose" />
+    <param name="ctrl_vision_detect_table" value="/ctrl/vision/detect/table" />
+    <param name="ctrl_voice_arm_left" value="/ctrl/voice/arm/left" />
+    <param name="feed_arm_grasp_result" value="/feed/arm/left/move/result" />
+    <!-- If using forward kinetic, notice that when using the param with rospy.getparam: -->
+    <!-- add `~` before the param name like this: rospy.get_param('~use_fk') -->
+    <param name="use_fk" value="false" />
   </node>
 
 </launch>

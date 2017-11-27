@@ -292,15 +292,15 @@ class NodeMain:
         voice_ctrl_arm = '/ctrl/voice/arm/left'
         arm_feed_result = '/feed/arm/left/move/result'
 
-        rospy.get_param('ctrl_vision_grasp_pose', vision_grasp_pose)
-        rospy.get_param('ctrl_vision_detect_table', vision_detect_table)
-        rospy.get_param('ctrl_voice_arm_left', voice_ctrl_arm)
-        rospy.get_param('feed_arm_grasp_result', arm_feed_result)
+        rospy.get_param('~ctrl_vision_grasp_pose', vision_grasp_pose)
+        rospy.get_param('~ctrl_vision_detect_table', vision_detect_table)
+        rospy.get_param('~ctrl_voice_arm_left', voice_ctrl_arm)
+        rospy.get_param('~feed_arm_grasp_result', arm_feed_result)
 
         # Whether use forward kinetic
         use_fk = True
-        if rospy.has_param('use_fk'):
-            use_fk = rospy.get_param('use_fk')
+        if rospy.has_param('~use_fk'):
+            use_fk = rospy.get_param('~use_fk')
         else:
             rospy.logwarn("Param use_fk not available, use fk by default.")
 
