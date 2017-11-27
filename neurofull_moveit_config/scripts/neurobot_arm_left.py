@@ -139,7 +139,7 @@ def run_grasp_ik(pose):
     target_pose = pose  # Input pose is in base_link frame, quick convert it here
     target_pose.header.frame_id = reference_frame
     target_pose.header.stamp = rospy.Time.now()
-    target_pose.pose.position.z += 0.4
+    target_pose.pose.position.z += 0.465
 
     left_arm.set_start_state_to_current_state()
 
@@ -231,7 +231,7 @@ class ArmControl:
 
         # Callback for receiving voice command
         self._cb_reset = rospy.Subscriber(ctrl_arm, Int8, self._voice_cb)
-        rospy.loginfo('Left arm: Ready for move.')
+        rospy.loginfo('Left arm: Ready to move.')
 
     def _target_pose_cb(self, pose):
         if not self._planed:
