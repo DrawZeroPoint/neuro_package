@@ -234,7 +234,10 @@ class ArmControl:
 
         # Callback for receiving voice command
         self._cb_reset = rospy.Subscriber(ctrl_arm, Int8, self._voice_cb)
-        rospy.loginfo('Left arm: Ready to move.')
+        if use_fk:
+            rospy.loginfo('Left arm: Ready to move using forward kinetic.')
+        else:
+            rospy.loginfo('Left arm: Ready to move using inverse kinetic.')
 
     def _target_pose_cb(self, pose):
         if not self._planed:
