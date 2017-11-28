@@ -54,7 +54,7 @@ int main(int argc,char **argv)
 
   // Expand the queue
   ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 30);
-  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 30);
+  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left_1", 30);
 
   // Result feedback
   ros::Publisher pub_result = n.advertise<std_msgs::Int8>("/feed/arm/left/move/result", 1);
@@ -97,7 +97,7 @@ int main(int argc,char **argv)
         angle_state.angular.y = state_angle_temp[4];
         angle_state.angular.z = state_angle_temp[5];
         
-//        pub_vel_state.publish(vel_state);
+        pub_vel_state.publish(vel_state);
         pub_angle_state.publish(angle_state);
         
         // With velocity control, there is no need to add time delay
