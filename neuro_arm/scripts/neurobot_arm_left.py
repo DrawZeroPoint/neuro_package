@@ -118,8 +118,8 @@ def gripper_open(status):
 def add_table(pose):
     table_id = 'table'
     # pose is in base_link frame
-    # The length (0.5) and width (0.8) of table is predefined here
-    size = [0.5, 0.8, (pose.pose.position.z + link_to_foot_) * 2]
+    # The length (0.5) and width (0.7) of table is predefined here
+    size = [0.5, 0.7, (pose.pose.position.z + link_to_foot_) * 2]
 
     scene.remove_attached_object(reference_frame, table_id)  # Clear previous table
     scene.attach_box(reference_frame, table_id, pose, size)
@@ -264,8 +264,10 @@ class ArmControl:
                 rospy.get_param('/param/arm/left/use_fk', self._use_fk)
 
             if self._use_fk:
+                rospy.loginfo('Left arm: Using forward kinetic.')
                 run_grasp_fk()
             else:
+                rospy.loginfo('Left arm: Using inverse kinetic.')
                 run_grasp_ik(pose)
             self._planed = True
             # Since we add table before grasp, we need remove it after grasp
