@@ -121,15 +121,15 @@ def add_table(pose):
     # The length (0.5) and width (0.8) of table is predefined here
     size = [0.5, 0.8, (pose.pose.position.z + link_to_foot_) * 2]
 
-    scene.remove_attached_object(map_frame, table_id)  # Clear previous table
-    scene.attach_box(map_frame, table_id, pose, size)
+    scene.remove_attached_object(reference_frame, table_id)  # Clear previous table
+    scene.attach_box(reference_frame, table_id, pose, size)
     # scene.remove_world_object(table_id)
     # scene.add_box(table_id, pose, size)
 
 
 def delete_table():
     table_id = 'table'
-    scene.remove_attached_object(map_frame, table_id)
+    scene.remove_attached_object(reference_frame, table_id)
     # scene.remove_world_object(table_id)  # Clear previous table
 
 
