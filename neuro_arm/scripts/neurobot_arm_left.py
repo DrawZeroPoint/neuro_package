@@ -126,16 +126,16 @@ def add_table(pose):
     # The length (0.5) and width (0.7) of table is predefined here
     size = [0.5, 0.7, (pose.pose.position.z + link_to_foot_) * 2]
 
-    scene.remove_attached_object(reference_frame, table_id)  # Clear previous table
-    scene.attach_box(reference_frame, table_id, pose, size)
-    # scene.remove_world_object(table_id)
-    # scene.add_box(table_id, pose, size)
+    # We can not use attach method cause the map frame is not in robot definition
+    # scene.remove_attached_object(reference_frame, table_id)  # Clear previous table
+    # scene.attach_box(reference_frame, table_id, pose, size)
+    scene.remove_world_object(table_id)
+    scene.add_box(table_id, pose, size)
 
 
 def delete_table():
     table_id = 'table'
-    scene.remove_attached_object(reference_frame, table_id)
-    # scene.remove_world_object(table_id)  # Clear previous table
+    scene.remove_world_object(table_id)  # Clear previous table
 
 
 def ik_result_check(traj):
@@ -192,7 +192,9 @@ def run_grasp_ik(pose):
     target_pose_pre = pose  # Input pose is in base_link frame
     target_pose_pre.header.frame_id = reference_frame
     target_pose_pre.header.stamp = rospy.Time.now()
-    target_pose_pre.pose.position.x -= 0.1
+    # Notice that in python, -= will also influence pose
+    # target_pose_pre.pose.position.x -= 0.1
+    target_pose_pre.pose.position.x = pose.pose.position.x - 0.1
 
     left_arm.set_start_state_to_current_state()
 
@@ -205,7 +207,6 @@ def run_grasp_ik(pose):
         target_pose = pose  # Input pose is in base_link frame
         target_pose.header.frame_id = reference_frame
         target_pose.header.stamp = rospy.Time.now()
-        target_pose.pose.position.x += 0.1
 
         left_arm.set_start_state_to_current_state()
 
