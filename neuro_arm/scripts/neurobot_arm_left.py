@@ -138,6 +138,33 @@ def delete_table():
     # scene.remove_world_object(table_id)  # Clear previous table
 
 
+def ik_result_check(traj):
+    # Check whether ik returns useful result,
+    # if true, execute it, else back to initial pose
+    traj_num = len(traj.joint_trajectory.points)
+
+    flag = Int8()
+    flag.data = 0
+    if traj_num == 0:
+        rospy.logwarn('Left arm: The traj plan failed.')
+        # Back to pose [0 0 0 1.57 1.57 0]
+        left_arm.set_named_target('left_arm_pose1')
+        left_arm.go()
+        rospy.sleep(0.5)
+        # Back to initial pose [0 0 0 0 0 0]
+        left_arm.set_named_target('left_arm_init')
+        left_arm.go()
+        flag.data = -1
+    else:
+        # Execute the planned trajectory
+        left_arm.execute(traj)
+        rospy.sleep(2)
+
+        flag.data = 1
+    ik_result_pub.publish(flag)
+    return flag.data
+
+
 def run_grasp_ik(pose):
     # Use forward kinetic to get to initial position
     joint_pos_tgt = [0, 0, 0, 0, 1.57, 0]
@@ -161,42 +188,42 @@ def run_grasp_ik(pose):
     left_arm.execute(traj)  # move forward
     rospy.sleep(0.5)
 
-    # Use inverse kinetic to get to pose
-    target_pose = pose  # Input pose is in base_link frame
-    target_pose.header.frame_id = reference_frame
-    target_pose.header.stamp = rospy.Time.now()
+    # First get near to the target
+    target_pose_pre = pose  # Input pose is in base_link frame
+    target_pose_pre.header.frame_id = reference_frame
+    target_pose_pre.header.stamp = rospy.Time.now()
+    target_pose_pre.pose.position.x -= 0.1
 
     left_arm.set_start_state_to_current_state()
 
-    # Set the goal pose of the end effector to the stored pose
-    left_arm.set_pose_target(target_pose, left_eef)
+    # Set the goal pose of the end effector to the prepare pose
+    left_arm.set_pose_target(target_pose_pre, left_eef)
 
     # Plan the trajectory to the goal
     traj = left_arm.plan()
-    n_points = len(traj.joint_trajectory.points)
+    if ik_result_check(traj):
 
-    flag = Int8()
-    flag.data = 0
-    if n_points == 0:
-        rospy.logwarn('Left arm: The traj plan failed.')
-        # Back to pose [0 0 0 1.57 1.57 0]
-        left_arm.set_named_target('left_arm_pose1')
-        left_arm.go()
-        rospy.sleep(0.5)
-        # Back to initial pose [0 0 0 0 0 0]
-        left_arm.set_named_target('left_arm_init')
-        left_arm.go()
-        flag.data = -1
+        # Use inverse kinetic to get to pose
+        target_pose = pose  # Input pose is in base_link frame
+        target_pose.header.frame_id = reference_frame
+        target_pose.header.stamp = rospy.Time.now()
+
+        left_arm.set_start_state_to_current_state()
+
+        # Set the goal pose of the end effector to the stored pose
+        left_arm.set_pose_target(target_pose, left_eef)
+
+        # Plan the trajectory to the goal
+        traj = left_arm.plan()
+        if ik_result_check(traj):
+            left_gripper.set_joint_value_target(left_gripper_close)
+            left_gripper.go()
+            left_arm.set_named_target('left_arm_pose1')
+            left_arm.go()
+        else:
+            rospy.logwarn('Left arm: No plan for final pose.')
     else:
-        # Execute the planned trajectory
-        left_arm.execute(traj)
-        rospy.sleep(2)
-        left_gripper.set_joint_value_target(left_gripper_close)
-        left_gripper.go()
-        left_arm.set_named_target('left_arm_pose1')
-        left_arm.go()
-        flag.data = 1
-    ik_result_pub.publish(flag)
+        rospy.logwarn('Left arm: No plan for prepare pose.')
 
 
 def run_grasp_fk():
