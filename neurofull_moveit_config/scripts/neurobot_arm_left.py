@@ -38,7 +38,7 @@ link_to_foot_ = 0.465
 # Initialize the move_group API
 moveit_commander.roscpp_initialize(sys.argv)
 
-rospy.sleep(6)  # Wait moveit to start up, necessary!
+rospy.sleep(8)  # Wait moveit to start up, necessary!
 
 # Initialize the move group for the left arm
 left_arm = moveit_commander.MoveGroupCommander('left_arm')
@@ -117,6 +117,11 @@ def add_table(pose):
 
     scene.remove_world_object(table_id)  # Clear previous table
     scene.add_box(table_id, pose, size)
+
+
+def delete_table():
+    table_id = 'table'
+    scene.remove_world_object(table_id)  # Clear previous table
 
 
 def run_grasp_ik(pose):
@@ -249,6 +254,8 @@ class ArmControl:
             else:
                 run_grasp_ik(pose)
             self._planed = True
+            # Since we add table before grasp, we need remove it after grasp
+            delete_table()
         else:
             pass
 
