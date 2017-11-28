@@ -61,12 +61,14 @@ left_arm.set_goal_orientation_tolerance(0.01)
 
 # Construct the initial scene object
 scene = PlanningSceneInterface()
+map_frame = 'map'  # Reference frame for scene
 
 # Publish inverse kinetic result
 ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_size=1)
 
 
 def reset():
+    # Define end effector pose, this pose make robot put down its arm
     target_pose = PoseStamped()
     target_pose.header.frame_id = reference_frame
     target_pose.header.stamp = rospy.Time.now()
@@ -78,18 +80,21 @@ def reset():
     target_pose.pose.orientation.y = 0
     target_pose.pose.orientation.z = 0
     target_pose.pose.orientation.w = 1
+
     # Set the start state to the current state
     left_arm.set_start_state_to_current_state()
 
     # Set the goal pose of the end effector to the stored pose
     left_arm.set_pose_target(target_pose, left_eef)
 
+    # Reset using inverse kinetic
     init_positions = [0, 0, 0, 0, 0, 0]
     left_arm.set_joint_value_target(init_positions)
     traj = left_arm.plan()
     left_arm.execute(traj)
     rospy.sleep(1)
 
+    # Close the hand
     left_gripper.set_joint_value_target(left_gripper_close)
     left_gripper.go()
     rospy.sleep(1)
@@ -112,16 +117,20 @@ def gripper_open(status):
 
 def add_table(pose):
     table_id = 'table'
-    # position.z is in base_link frame
+    # pose is in base_link frame
+    # The length (0.5) and width (0.8) of table is predefined here
     size = [0.5, 0.8, (pose.pose.position.z + link_to_foot_) * 2]
 
-    scene.remove_world_object(table_id)  # Clear previous table
-    scene.add_box(table_id, pose, size)
+    scene.remove_attached_object(map_frame, table_id)  # Clear previous table
+    scene.attach_box(map_frame, table_id, pose, size)
+    # scene.remove_world_object(table_id)
+    # scene.add_box(table_id, pose, size)
 
 
 def delete_table():
     table_id = 'table'
-    scene.remove_world_object(table_id)  # Clear previous table
+    scene.remove_attached_object(map_frame, table_id)
+    # scene.remove_world_object(table_id)  # Clear previous table
 
 
 def run_grasp_ik(pose):
@@ -147,10 +156,10 @@ def run_grasp_ik(pose):
     left_arm.execute(traj)  # move forward
     rospy.sleep(0.5)
 
+    # Use inverse kinetic to get to pose
     target_pose = pose  # Input pose is in base_link frame
     target_pose.header.frame_id = reference_frame
     target_pose.header.stamp = rospy.Time.now()
-    # base_link is 0.465m higher than base_footprint
 
     left_arm.set_start_state_to_current_state()
 
@@ -165,10 +174,11 @@ def run_grasp_ik(pose):
     flag.data = 0
     if n_points == 0:
         rospy.loginfo('Left arm: The traj planning failed.')
-        # Back to initial pose
+        # Back to pose [0 0 0 1.57 1.57 0]
         left_arm.set_named_target('left_arm_pose1')
         left_arm.go()
         rospy.sleep(0.5)
+        # Back to initial pose [0 0 0 0 0 0]
         left_arm.set_named_target('left_arm_init')
         left_arm.go()
         flag.data = -1
@@ -249,6 +259,10 @@ class ArmControl:
 
     def _target_pose_cb(self, pose):
         if not self._planed:
+            # Recheck the method param
+            if rospy.has_param('/param/arm/left/use_fk'):
+                rospy.get_param('/param/arm/left/use_fk', self._use_fk)
+
             if self._use_fk:
                 run_grasp_fk()
             else:
@@ -293,13 +307,14 @@ class NodeMain:
         rospy.init_node('neurobot_arm_left', anonymous=False)
         rospy.on_shutdown(self.shutdown)
 
-        # Get topics
+        # Predefined topic names
         vision_grasp_pose = '/ctrl/vision/grasp/pose'
         vision_detect_table = '/ctrl/vision/detect/table'
 
         voice_ctrl_arm = '/ctrl/voice/arm/left'
         arm_feed_result = '/feed/arm/left/move/result'
 
+        # Get topics names from launch file
         rospy.get_param('~ctrl_vision_grasp_pose', vision_grasp_pose)
         rospy.get_param('~ctrl_vision_detect_table', vision_detect_table)
         rospy.get_param('~ctrl_voice_arm_left', voice_ctrl_arm)
@@ -312,8 +327,9 @@ class NodeMain:
             use_fk = rospy.get_param('~use_fk')
         else:
             rospy.logwarn("Param use_fk not available, use fk by default.")
+        rospy.set_param('/param/arm/left/use_fk', use_fk)
 
-        ctrl = ArmControl(vision_grasp_pose, vision_detect_table, voice_ctrl_arm, arm_feed_result, use_fk)
+        ArmControl(vision_grasp_pose, vision_detect_table, voice_ctrl_arm, arm_feed_result, use_fk)
         rospy.spin()
 
     @staticmethod
