@@ -52,8 +52,9 @@ int main(int argc,char **argv)
   geometry_msgs::Twist angle_state;
   geometry_msgs::Twist vel_state;
 
-  ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 1);
-  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 1);
+  // Expand the queue
+  ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 30);
+  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 30);
 
   // Result feedback
   ros::Publisher pub_result = n.advertise<std_msgs::Int8>("/feed/arm/left/move/result", 1);
@@ -81,6 +82,7 @@ int main(int argc,char **argv)
           state_angle_temp.push_back(act_msg->goal.trajectory.points[pos_count].positions[i]);
         }
         // Convert to Twist message, first publish velocity, then angle
+        // The velocity is the instantaneous velocity at each position
         vel_state.linear.x = state_vel_temp[0] * deceleration_;
         vel_state.linear.y = state_vel_temp[1] * deceleration_;
         vel_state.linear.z = state_vel_temp[2] * deceleration_;
@@ -95,7 +97,7 @@ int main(int argc,char **argv)
         angle_state.angular.y = state_angle_temp[4];
         angle_state.angular.z = state_angle_temp[5];
         
-        pub_vel_state.publish(vel_state);
+//        pub_vel_state.publish(vel_state);
         pub_angle_state.publish(angle_state);
         
         // With velocity control, there is no need to add time delay
