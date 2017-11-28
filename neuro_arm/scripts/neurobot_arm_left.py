@@ -178,7 +178,7 @@ def run_grasp_ik(pose):
     flag = Int8()
     flag.data = 0
     if n_points == 0:
-        rospy.loginfo('Left arm: The traj planning failed.')
+        rospy.logwarn('Left arm: The traj plan failed.')
         # Back to pose [0 0 0 1.57 1.57 0]
         left_arm.set_named_target('left_arm_pose1')
         left_arm.go()
