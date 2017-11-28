@@ -19,6 +19,11 @@
     GNU General Public License for more details at:
     
     http://www.gnu.org/licenses/gpl.html
+
+    global_name = rospy.get_param("/global_name")
+    relative_name = rospy.get_param("relative_name")
+    private_param = rospy.get_param('~private_name')
+    default_param = rospy.get_param('default_param', 'default_value')
 """
 
 import rospy
@@ -261,7 +266,7 @@ class ArmControl:
         if not self._planed:
             # Recheck the method param
             if rospy.has_param('/param/arm/left/use_fk'):
-                rospy.get_param('/param/arm/left/use_fk', self._use_fk)
+                self._use_fk = rospy.get_param('/param/arm/left/use_fk')
 
             if self._use_fk:
                 rospy.loginfo('Left arm: Using forward kinetic.')
@@ -309,19 +314,13 @@ class NodeMain:
         rospy.init_node('neurobot_arm_left', anonymous=False)
         rospy.on_shutdown(self.shutdown)
 
-        # Predefined topic names
-        vision_grasp_pose = '/ctrl/vision/grasp/pose'
-        vision_detect_table = '/ctrl/vision/detect/table'
-
-        voice_ctrl_arm = '/ctrl/voice/arm/left'
-        arm_feed_result = '/feed/arm/left/move/result'
-
         # Get topics names from launch file
-        rospy.get_param('~ctrl_vision_grasp_pose', vision_grasp_pose)
-        rospy.get_param('~ctrl_vision_detect_table', vision_detect_table)
-        rospy.get_param('~ctrl_voice_arm_left', voice_ctrl_arm)
-        rospy.get_param('~feed_arm_grasp_result', arm_feed_result)
-        rospy.get_param('~link_to_foot', link_to_foot_)
+        vision_grasp_pose = rospy.get_param('~ctrl_vision_grasp_pose', '/ctrl/vision/grasp/pose')
+        vision_detect_table = rospy.get_param('~ctrl_vision_detect_table', '/ctrl/vision/detect/table')
+        voice_ctrl_arm = rospy.get_param('~ctrl_voice_arm_left', '/ctrl/voice/arm/left')
+        arm_feed_result = rospy.get_param('~feed_arm_grasp_result', '/feed/arm/left/move/result')
+        global link_to_foot_
+        link_to_foot_ = rospy.get_param('~link_to_foot', 0.465)
 
         # Whether use forward kinetic
         use_fk = True
