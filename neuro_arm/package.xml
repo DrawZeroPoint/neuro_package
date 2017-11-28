@@ -1,9 +1,10 @@
 <package>
 
-  <name>neurofull_moveit_config</name>
+  <name>neuro_arm</name>
   <version>0.3.0</version>
   <description>
-     An automatically generated package with all the configuration and launch files for using the neurofull with the MoveIt! Motion Planning Framework
+    An automatically generated package with all the configuration and launch files
+    for using the neuro_model with the MoveIt! Motion Planning Framework
   </description>
   <author email="65464@qq.com">affa</author>
   <maintainer email="65464@qq.com">affa</maintainer>
@@ -16,8 +17,7 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <run_depend>neurofull</run_depend>
-  <build_depend>neurofull</build_depend>
+  <build_depend>neuro_model</build_depend>
   <build_depend>actionlib</build_depend>
   <build_depend>actionlib_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
@@ -30,6 +30,7 @@
   <build_depend>tf</build_depend>
   <build_depend>moveit_planners_sbpl</build_depend>
 
+  <run_depend>neuro_model</run_depend>
   <run_depend>actionlib</run_depend>
   <run_depend>actionlib_msgs</run_depend>
   <run_depend>geometry_msgs</run_depend>

@@ -1,0 +1,4 @@
+<launch>
+  <include file="$(find neuro_arm)/launch/neuro_init.launch"/>
+  <include file="$(find neuro_arm)/launch/rosserial.launch"/>
+</launch>

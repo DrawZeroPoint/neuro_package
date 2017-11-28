@@ -1,0 +1,6 @@
+<package>
+  <description brief="neuro_model">neuro_model</description>
+  <depend package="gazebo" />
+  <author>NEU_TEAM</author>
+  <license>BSD</license>
+</package>

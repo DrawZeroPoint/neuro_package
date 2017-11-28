@@ -10,13 +10,13 @@
 
    <!-- Bring up the arbotix driver with a configuration file appropriate to the robot -->
    <node name="arbotix" pkg="arbotix_python" type="arbotix_driver" clear_params="true" output="screen">
-      <rosparam file="$(find neurofull_moveit_config)/config/neurofull_test.yaml" command="load" />
+      <rosparam file="$(find neuro_arm)/config/arm_cfg.yaml" command="load" />
       <param name="sim" value="$(arg sim)" />
       <param name="port" value="$(arg port)" />
    </node>
    
    <!-- Load the URDF/Xacro model of our robot -->
-   <param name="robot_description" command="$(find xacro)/xacro.py '$(find neurofull)/urdf/neurobot.urdf'" />
+   <param name="robot_description" command="$(find xacro)/xacro.py '$(find neuro_model)/urdf/neurobot.urdf'" />
    
    <!-- Publish the robot state -->
    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher">

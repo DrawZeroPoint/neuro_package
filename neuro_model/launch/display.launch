@@ -6,7 +6,7 @@
     default="True" />
   <param
     name="robot_description"
-    textfile="$(find neurofull)/urdf/neurofull_test_ikfast.urdf" />
+    textfile="$(find neuro_model)/urdf/neurobot.urdf" />
   <param
     name="use_gui"
     value="$(arg gui)" />
@@ -22,5 +22,5 @@
     name="rviz"
     pkg="rviz"
     type="rviz"
-    args="-d $(find neurofull)/urdf.rviz" />
+    args="-d $(find neuro_model)/urdf.rviz" />
 </launch>

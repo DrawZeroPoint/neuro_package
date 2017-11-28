@@ -1,9 +1,0 @@
-1.手打开　／gripper_pose  std_msgs::Float32  1.57
-2.手闭合　／gripper_pose  std_msgs::Float32  ０
-３.复位　／my_trajectory_pos_left　　geometry_msgs::Twist　 值全赋为０
-      xxx.linear.x=0;
-      xxx.linear.y=0;
-      xxx.linear.z=0;
-      xxx.angular.x=0;
-      xxx.angular.y=0;
-      xxx.angular.z=0;

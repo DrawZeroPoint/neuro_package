@@ -10,7 +10,7 @@
     name="spawn_model"
     pkg="gazebo_ros"
     type="spawn_model"
-    args="-file $(find neurofull)/robots/neurofull.urdf -urdf -model neurofull"
+    args="-file $(find neuro_model)/urdf/neurobot.urdf -urdf -model neurobot"
     output="screen" />
   <node
     name="fake_joint_calibration"
