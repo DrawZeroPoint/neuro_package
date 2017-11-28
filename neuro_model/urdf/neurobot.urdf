@@ -1,5 +1,5 @@
 <robot
-  name="neurofull">
+  name="neurobot">
   <link 
     name="base_footprint">
     <visual>
@@ -32,7 +32,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://neurofull/meshes/base_leg.stl" />
+          filename="package://neuro_model/meshes/base_leg.stl" />
       </geometry>
       <material
         name="">
@@ -46,7 +46,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://neurofull/meshes/base_leg.stl" />
+          filename="package://neuro_model/meshes/base_leg.stl" />
       </geometry>
     </collision>
   </link>
@@ -80,7 +80,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://neurofull/meshes/base_link.stl" />
+          filename="package://neuro_model/meshes/base_link.stl" />
       </geometry>
       <material
         name="">
@@ -94,7 +94,7 @@
         rpy="0 0 0" />
       <geometry>
         <mesh
-          filename="package://neurofull/meshes/base_link.stl" />
+          filename="package://neuro_model/meshes/base_link.stl" />
       </geometry>
     </collision>
   </link>
