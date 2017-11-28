@@ -21,7 +21,7 @@
     <param name="feed_arm_grasp_result" value="/feed/arm/left/move/result" />
     <!-- If using forward kinetic, notice that when using the param with rospy.getparam: -->
     <!-- add `~` before the param name like this: rospy.get_param('~use_fk') -->
-    <param name="use_fk" value="true" />
+    <param name="use_fk" value="false" />
     <param name="link_to_foot" value="0.44" />
   </node>
 

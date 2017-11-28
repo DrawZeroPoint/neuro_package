@@ -193,8 +193,7 @@ def run_grasp_ik(pose):
     target_pose_pre.header.frame_id = reference_frame
     target_pose_pre.header.stamp = rospy.Time.now()
     # Notice that in python, -= will also influence pose
-    # target_pose_pre.pose.position.x -= 0.1
-    target_pose_pre.pose.position.x = pose.pose.position.x - 0.1
+    target_pose_pre.pose.position.x -= 0.1
 
     left_arm.set_start_state_to_current_state()
 
@@ -207,6 +206,7 @@ def run_grasp_ik(pose):
         target_pose = pose  # Input pose is in base_link frame
         target_pose.header.frame_id = reference_frame
         target_pose.header.stamp = rospy.Time.now()
+        target_pose.pose.position.x += 0.1
 
         left_arm.set_start_state_to_current_state()
 
