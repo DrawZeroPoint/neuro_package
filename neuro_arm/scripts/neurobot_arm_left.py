@@ -202,11 +202,10 @@ def run_grasp_ik(pose):
     # Plan the trajectory to the goal
     traj = left_arm.plan()
     if ik_result_check(traj):
-
-        # Use inverse kinetic to get to pose
         target_pose = pose  # Input pose is in base_link frame
         target_pose.header.frame_id = reference_frame
         target_pose.header.stamp = rospy.Time.now()
+        target_pose.pose.position.x += 0.1
 
         left_arm.set_start_state_to_current_state()
 
