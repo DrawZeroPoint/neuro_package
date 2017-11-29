@@ -147,7 +147,7 @@ def delete_table():
     scene.remove_world_object(table_id)  # Clear previous table
 
 
-def ik_result_check(traj):
+def ik_result_check_and_run(traj):
     # Check whether ik returns useful result,
     # if true, execute it, else back to initial pose
     traj_num = len(traj.joint_trajectory.points)
@@ -156,13 +156,6 @@ def ik_result_check(traj):
     flag.data = 0
     if traj_num == 0:
         rospy.logwarn('Left arm: The traj plan failed.')
-        # Back to pose [0 0 0 1.57 1.57 0]
-        # left_arm.set_named_target('left_arm_pose1')
-        # left_arm.go()
-        # rospy.sleep(0.5)
-        # # Back to initial pose [0 0 0 0 0 0]
-        # left_arm.set_named_target('left_arm_init')
-        # left_arm.go()
         flag.data = -1
     else:
         # Execute the planned trajectory
@@ -211,7 +204,7 @@ def run_grasp_ik(pose):
 
     # Plan the trajectory to the goal
     traj = left_arm.plan()
-    if ik_result_check(traj):
+    if ik_result_check_and_run(traj):
         target_pose = pose  # Input pose is in base_link frame
         target_pose.header.frame_id = reference_frame
         target_pose.header.stamp = rospy.Time.now()
@@ -224,7 +217,7 @@ def run_grasp_ik(pose):
 
         # Plan the trajectory to the goal
         traj = left_arm.plan()
-        if ik_result_check(traj):
+        if ik_result_check_and_run(traj):
             gripper_open(False)
             left_arm.set_named_target('left_arm_pose1')
             left_arm.go()
@@ -249,7 +242,7 @@ def run_put_ik(pose):
 
     # Plan the trajectory to the goal
     traj = left_arm.plan()
-    if ik_result_check(traj):
+    if ik_result_check_and_run(traj):
         put_pose = pose  # Input pose is in base_link frame
         put_pose.header.frame_id = reference_frame
         put_pose.header.stamp = rospy.Time.now()
@@ -262,7 +255,7 @@ def run_put_ik(pose):
 
         # Plan the trajectory to the goal
         traj = left_arm.plan()
-        if ik_result_check(traj):
+        if ik_result_check_and_run(traj):
             # Open gripper and drop the object
             gripper_open(True)
             # Put down the arm
