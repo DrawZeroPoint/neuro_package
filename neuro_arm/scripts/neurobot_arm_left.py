@@ -93,8 +93,14 @@ def reset():
     # left_arm.set_pose_target(target_pose, left_eef)
 
     # Back to prepare pose
-    left_arm.set_named_target('left_arm_pose1')
-    left_arm.go()
+    # left_arm.set_named_target('left_arm_pose1')
+    # left_arm.go()
+
+    joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+    rospy.sleep(1)
 
     # Reset using inverse kinetic
     init_positions = [0, 0, 0, 0, 0, 0]
