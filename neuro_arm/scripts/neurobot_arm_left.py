@@ -179,8 +179,8 @@ def run_grasp_ik(pose):
     left_arm.execute(traj)
     rospy.sleep(3)
 
-    left_gripper.set_joint_value_target(left_gripper_open)
-    left_gripper.go()  # open gripper, no need for delay
+    # Open gripper, no need for delay
+    gripper_open(True)
 
     joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0]
     left_arm.set_joint_value_target(joint_pos_tgt)
@@ -216,8 +216,7 @@ def run_grasp_ik(pose):
         # Plan the trajectory to the goal
         traj = left_arm.plan()
         if ik_result_check(traj):
-            left_gripper.set_joint_value_target(left_gripper_close)
-            left_gripper.go()
+            gripper_open(False)
             left_arm.set_named_target('left_arm_pose1')
             left_arm.go()
         else:
@@ -270,15 +269,58 @@ def run_grasp_fk():
     left_arm.execute(traj)  # let lower arm horizontal
 
 
+def run_put_ik(pose):
+    # First get near to the put pose
+    put_pose_pre = pose  # Input pose is in base_link frame
+    put_pose_pre.header.frame_id = reference_frame
+    put_pose_pre.header.stamp = rospy.Time.now()
+    # Notice that in python, -= will also influence pose
+    put_pose_pre.pose.position.z += 0.05
+
+    left_arm.set_start_state_to_current_state()
+
+    # Set the goal pose of the end effector to the prepare pose
+    left_arm.set_pose_target(put_pose_pre, left_eef)
+
+    # Plan the trajectory to the goal
+    traj = left_arm.plan()
+    if ik_result_check(traj):
+        put_pose = pose  # Input pose is in base_link frame
+        put_pose.header.frame_id = reference_frame
+        put_pose.header.stamp = rospy.Time.now()
+        put_pose.pose.position.z -= 0.05
+
+        left_arm.set_start_state_to_current_state()
+
+        # Set the goal pose of the end effector to the stored pose
+        left_arm.set_pose_target(put_pose, left_eef)
+
+        # Plan the trajectory to the goal
+        traj = left_arm.plan()
+        if ik_result_check(traj):
+            # Open gripper and drop the object
+            gripper_open(True)
+            # Back to prepare pose
+            left_arm.set_named_target('left_arm_pose1')
+            left_arm.go()
+            # Put down the arm
+            reset()
+        else:
+            rospy.logwarn('Left arm: No plan for final pose.')
+    else:
+        rospy.logwarn('Left arm: No plan for prepare pose.')
+
+
 class ArmControl:
-    def __init__(self, ctrl_grasp_pose, ctrl_detect_table, ctrl_arm, feed_result,
-                 use_fk):
+    def __init__(self, ctrl_grasp_pose, ctrl_detect_table, ctrl_put_pose,
+                 ctrl_arm, feed_result, use_fk):
         self._use_fk = use_fk
         self._planed = False
 
         # Callbacks for grasp
         self._cb_tgt = rospy.Subscriber(ctrl_grasp_pose, PoseStamped, self._target_pose_cb)
         self._cb_table = rospy.Subscriber(ctrl_detect_table, PoseStamped, self._table_cb)
+        self._cb_put = rospy.Subscriber(ctrl_put_pose, PoseStamped, self._put_pose_cb)
 
         self._cb_result = rospy.Subscriber(feed_result, Int8, self._target_result_cb)
 
@@ -307,6 +349,13 @@ class ArmControl:
         else:
             pass
 
+    def _put_pose_cb(self, pose):
+        if self._planed:
+            # _planed not being reset means we didn't release the object in hand
+            # so that we can put it down, meanwhile, we can reset _planed and the arm
+            self._planed = False
+            run_put_ik(pose)
+
     @staticmethod
     def _table_cb(table):
         add_table(table)
@@ -315,7 +364,7 @@ class ArmControl:
     def _target_result_cb(data):
         # If result returns true, which means the plan has been finished, reset.
         if data.data:
-            rospy.loginfo('Left arm: Finished one execution.')
+            rospy.loginfo('Left arm: Finished plan execution.')
 
     def _voice_cb(self, data):
         if data.data == 1:
@@ -344,6 +393,7 @@ class NodeMain:
         # Get topics names from launch file
         vision_grasp_pose = rospy.get_param('~ctrl_vision_grasp_pose', '/ctrl/vision/grasp/pose')
         vision_detect_table = rospy.get_param('~ctrl_vision_detect_table', '/ctrl/vision/detect/table')
+        vision_put_pose = rospy.get_param('~ctrl_vision_put_pose', '/ctrl/vision/put/pose')
         voice_ctrl_arm = rospy.get_param('~ctrl_voice_arm_left', '/ctrl/voice/arm/left')
         arm_feed_result = rospy.get_param('~feed_arm_grasp_result', '/feed/arm/left/move/result')
         global link_to_foot_
@@ -357,7 +407,8 @@ class NodeMain:
             rospy.logwarn("Param use_fk not available, use fk by default.")
         rospy.set_param('/param/arm/left/use_fk', use_fk)
 
-        ArmControl(vision_grasp_pose, vision_detect_table, voice_ctrl_arm, arm_feed_result, use_fk)
+        ArmControl(vision_grasp_pose, vision_detect_table, vision_put_pose,
+                   voice_ctrl_arm, arm_feed_result, use_fk)
         rospy.spin()
 
     @staticmethod
