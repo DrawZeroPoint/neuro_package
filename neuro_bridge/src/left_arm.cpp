@@ -52,9 +52,10 @@ int main(int argc,char **argv)
   geometry_msgs::Twist angle_state;
   geometry_msgs::Twist vel_state;
 
-  // Expand the queue
+  // Expand the queue for publishing is very important cause the traj can be transferred
+  // to position and velocity command pretty quick, small queue will lead to lose intermediate data
   ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 30);
-  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left_1", 30);
+  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 30);
 
   // Result feedback
   ros::Publisher pub_result = n.advertise<std_msgs::Int8>("/feed/arm/left/move/result", 1);
