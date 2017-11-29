@@ -78,7 +78,8 @@ int main(int argc,char **argv)
         The velocity and angle got from traj is instantaneous in each traj point,
         including the start point and end point (velocity all equal to 0). However, the
         driver of motor needs target position and speed in range between traj points,
-        so do convention here
+        besides, ##!!!! THE DRIVER ONLY RECOGNIZE POSITIVE SPEED , BUT THE SPEED 
+        FROM PLANNING CAN BE POSITIVE OR NEGATIVE, SO DO CONVENTION HERE !!!!##
         **/
 
       do {
@@ -87,7 +88,7 @@ int main(int argc,char **argv)
         vector<double> vel_next;
         
         // Time used for forwarding from current point to next point
-        vector<ros::Duration> secs_to_next;
+        ros::Duration secs_to_next;
         
         // Angle for current point and the next point
         vector<double> angle_curr;
@@ -98,20 +99,29 @@ int main(int argc,char **argv)
           vel_curr.push_back(act_msg->goal.trajectory.points[pos_count].velocities[i]);
           vel_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].velocities[i]);
           
-          secs_to_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].time_from_start
-                                 - act_msg->goal.trajectory.points[pos_count].time_from_start);
-          
           angle_curr.push_back(act_msg->goal.trajectory.points[pos_count].positions[i]);
           angle_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].positions[i]);
         }
+        secs_to_next = act_msg->goal.trajectory.points[pos_count + 1].time_from_start
+                       - act_msg->goal.trajectory.points[pos_count].time_from_start;
         // Convert to Twist message, first publish velocity, then angle
         // The velocity is the instantaneous velocity at each position
-        vel_state.linear.x = (angle_next[0] - angle_curr[0])/secs_to_next[0].toSec() * deceleration_;
-        vel_state.linear.y = (angle_next[1] - angle_curr[1])/secs_to_next[1].toSec() * deceleration_;
-        vel_state.linear.z = (angle_next[2] - angle_curr[2])/secs_to_next[2].toSec() * deceleration_;
-        vel_state.angular.x = (angle_next[3] - angle_curr[3])/secs_to_next[3].toSec() * deceleration_;
-        vel_state.angular.y = (angle_next[4] - angle_curr[4])/secs_to_next[4].toSec() * deceleration_;
-        vel_state.angular.z = (angle_next[5] - angle_curr[5])/secs_to_next[5].toSec() * deceleration_;
+        
+        // Method 1: use average speed calculated by: d/t
+        //vel_state.linear.x = (angle_next[0] - angle_curr[0])/secs_to_next.toSec() * deceleration_;
+        //vel_state.linear.y = (angle_next[1] - angle_curr[1])/secs_to_next.toSec() * deceleration_;
+        //vel_state.linear.z = (angle_next[2] - angle_curr[2])/secs_to_next.toSec() * deceleration_;
+        //vel_state.angular.x = (angle_next[3] - angle_curr[3])/secs_to_next.toSec() * deceleration_;
+        //vel_state.angular.y = (angle_next[4] - angle_curr[4])/secs_to_next.toSec() * deceleration_;
+        //vel_state.angular.z = (angle_next[5] - angle_curr[5])/secs_to_next.toSec() * deceleration_;
+        
+        // Method 2: use max speed among current and next
+        vel_state.linear.x = fabs(vel_curr[0])>fabs(vel_next[0])?fabs(vel_curr[0]):fabs(vel_next[0]);
+        vel_state.linear.y = fabs(vel_curr[1])>fabs(vel_next[1])?fabs(vel_curr[1]):fabs(vel_next[1]);
+        vel_state.linear.z = fabs(vel_curr[2])>fabs(vel_next[2])?fabs(vel_curr[2]):fabs(vel_next[2]);
+        vel_state.angular.x = fabs(vel_curr[3])>fabs(vel_next[3])?fabs(vel_curr[3]):fabs(vel_next[3]);
+        vel_state.angular.y = fabs(vel_curr[4])>fabs(vel_next[4])?fabs(vel_curr[4]):fabs(vel_next[4]);
+        vel_state.angular.z = fabs(vel_curr[5])>fabs(vel_next[5])?fabs(vel_curr[5]):fabs(vel_next[5]);
         
         angle_state.linear.x = angle_next[0];
         angle_state.linear.y = angle_next[1];
@@ -123,7 +133,8 @@ int main(int argc,char **argv)
         pub_vel_state.publish(vel_state);
         pub_angle_state.publish(angle_state);
         
-        // With velocity control, there is no need to add time delay
+        // Add time delay to make sure the plan is executed
+        secs_to_next.sleep();
         
         // Prepare for the next state
         pos_count++;
