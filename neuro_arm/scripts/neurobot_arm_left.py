@@ -318,9 +318,9 @@ class ArmControl:
         self._planed = False
 
         # Callbacks for grasp
-        self._cb_tgt = rospy.Subscriber(ctrl_grasp_pose, PoseStamped, self._target_pose_cb)
-        self._cb_table = rospy.Subscriber(ctrl_detect_table, PoseStamped, self._table_cb)
-        self._cb_put = rospy.Subscriber(ctrl_put_pose, PoseStamped, self._put_pose_cb)
+        self._cb_tgt = rospy.Subscriber(ctrl_grasp_pose, PoseStamped, self._target_pose_cb, queue_size=1)
+        self._cb_table = rospy.Subscriber(ctrl_detect_table, PoseStamped, self._table_cb, queue_size=1)
+        self._cb_put = rospy.Subscriber(ctrl_put_pose, PoseStamped, self._put_pose_cb, queue_size=1)
 
         self._cb_result = rospy.Subscriber(feed_result, Int8, self._target_result_cb)
 
