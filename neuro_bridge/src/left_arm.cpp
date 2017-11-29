@@ -72,31 +72,52 @@ int main(int argc,char **argv)
 
       uint pos_count = 0; // Count state number
       int traj_size = act_msg->goal.trajectory.points.size();
+      
+      /**
+        The velocity and angle got from traj is instantaneous in each traj point,
+        including the start point and end point (velocity all equal to 0). However, the
+        driver of motor needs target position and speed in range between traj points,
+        so do convention here
+        **/
 
       do {
-        vector<float> state_vel_temp;
-        vector<float> state_angle_temp;
+        // Velocity for current point and the next point
+        vector<double> vel_curr;
+        vector<double> vel_next;
+        
+        // Time used for forwarding from current point to next point
+        vector<ros::Duration> secs_to_next;
+        
+        // Angle for current point and the next point
+        vector<double> angle_curr;
+        vector<double> angle_next;
         
         for(int i = 0; i < act_msg->goal.trajectory.joint_names.size(); i++) {
           // For each joint, at state id = pos_count, get its state and fill it into temp
-          state_vel_temp.push_back(act_msg->goal.trajectory.points[pos_count].velocities[i]);
-          state_angle_temp.push_back(act_msg->goal.trajectory.points[pos_count].positions[i]);
+          vel_curr.push_back(act_msg->goal.trajectory.points[pos_count].velocities[i]);
+          vel_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].velocities[i]);
+          
+          secs_to_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].time_from_start
+                                 - act_msg->goal.trajectory.points[pos_count].time_from_start);
+          
+          angle_curr.push_back(act_msg->goal.trajectory.points[pos_count].positions[i]);
+          angle_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].positions[i]);
         }
         // Convert to Twist message, first publish velocity, then angle
         // The velocity is the instantaneous velocity at each position
-        vel_state.linear.x = state_vel_temp[0] * deceleration_;
-        vel_state.linear.y = state_vel_temp[1] * deceleration_;
-        vel_state.linear.z = state_vel_temp[2] * deceleration_;
-        vel_state.angular.x = state_vel_temp[3] * deceleration_;
-        vel_state.angular.y = state_vel_temp[4] * deceleration_;
-        vel_state.angular.z = state_vel_temp[5] * deceleration_;
+        vel_state.linear.x = (angle_next[0] - angle_curr[0])/secs_to_next[0].toSec() * deceleration_;
+        vel_state.linear.y = (angle_next[1] - angle_curr[1])/secs_to_next[1].toSec() * deceleration_;
+        vel_state.linear.z = (angle_next[2] - angle_curr[2])/secs_to_next[2].toSec() * deceleration_;
+        vel_state.angular.x = (angle_next[3] - angle_curr[3])/secs_to_next[3].toSec() * deceleration_;
+        vel_state.angular.y = (angle_next[4] - angle_curr[4])/secs_to_next[4].toSec() * deceleration_;
+        vel_state.angular.z = (angle_next[5] - angle_curr[5])/secs_to_next[5].toSec() * deceleration_;
         
-        angle_state.linear.x = state_angle_temp[0];
-        angle_state.linear.y = state_angle_temp[1];
-        angle_state.linear.z = state_angle_temp[2];
-        angle_state.angular.x = state_angle_temp[3];
-        angle_state.angular.y = state_angle_temp[4];
-        angle_state.angular.z = state_angle_temp[5];
+        angle_state.linear.x = angle_next[0];
+        angle_state.linear.y = angle_next[1];
+        angle_state.linear.z = angle_next[2];
+        angle_state.angular.x = angle_next[3];
+        angle_state.angular.y = angle_next[4];
+        angle_state.angular.z = angle_next[5];
         
         pub_vel_state.publish(vel_state);
         pub_angle_state.publish(angle_state);
@@ -106,7 +127,7 @@ int main(int argc,char **argv)
         // Prepare for the next state
         pos_count++;
       }
-      while(pos_count < traj_size);
+      while(pos_count < traj_size - 1); // Omit the last point's vel
 
       std_msgs::Int8 flag;
       flag.data = 1;
