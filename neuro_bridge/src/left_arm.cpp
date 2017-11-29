@@ -134,7 +134,7 @@ int main(int argc,char **argv)
         pub_angle_state.publish(angle_state);
         
         // Add time delay to make sure the plan is executed
-        secs_to_next.sleep();
+//        secs_to_next.sleep();
         
         // Prepare for the next state
         pos_count++;
