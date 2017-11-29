@@ -73,24 +73,28 @@ ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_siz
 
 
 def reset():
-    # Define end effector pose, this pose make robot put down its arm
-    target_pose = PoseStamped()
-    target_pose.header.frame_id = reference_frame
-    target_pose.header.stamp = rospy.Time.now()
+    # # Define end effector pose, this pose make robot put down its arm
+    # target_pose = PoseStamped()
+    # target_pose.header.frame_id = reference_frame
+    # target_pose.header.stamp = rospy.Time.now()
+    #
+    # target_pose.pose.position.x = 0.45
+    # target_pose.pose.position.y = 0.28
+    # target_pose.pose.position.z = 1
+    # target_pose.pose.orientation.x = 0
+    # target_pose.pose.orientation.y = 0
+    # target_pose.pose.orientation.z = 0
+    # target_pose.pose.orientation.w = 1
+    #
+    # # Set the start state to the current state
+    # left_arm.set_start_state_to_current_state()
+    #
+    # # Set the goal pose of the end effector to the stored pose
+    # left_arm.set_pose_target(target_pose, left_eef)
 
-    target_pose.pose.position.x = 0.45
-    target_pose.pose.position.y = 0.28
-    target_pose.pose.position.z = 1
-    target_pose.pose.orientation.x = 0
-    target_pose.pose.orientation.y = 0
-    target_pose.pose.orientation.z = 0
-    target_pose.pose.orientation.w = 1
-
-    # Set the start state to the current state
-    left_arm.set_start_state_to_current_state()
-
-    # Set the goal pose of the end effector to the stored pose
-    left_arm.set_pose_target(target_pose, left_eef)
+    # Back to prepare pose
+    left_arm.set_named_target('left_arm_pose1')
+    left_arm.go()
 
     # Reset using inverse kinetic
     init_positions = [0, 0, 0, 0, 0, 0]
@@ -117,7 +121,6 @@ def gripper_open(status):
     else:
         left_gripper.set_joint_value_target(left_gripper_close)
     left_gripper.go()
-    rospy.sleep(1)
 
 
 def add_table(pose):
@@ -148,17 +151,17 @@ def ik_result_check(traj):
     if traj_num == 0:
         rospy.logwarn('Left arm: The traj plan failed.')
         # Back to pose [0 0 0 1.57 1.57 0]
-        left_arm.set_named_target('left_arm_pose1')
-        left_arm.go()
-        rospy.sleep(0.5)
-        # Back to initial pose [0 0 0 0 0 0]
-        left_arm.set_named_target('left_arm_init')
-        left_arm.go()
+        # left_arm.set_named_target('left_arm_pose1')
+        # left_arm.go()
+        # rospy.sleep(0.5)
+        # # Back to initial pose [0 0 0 0 0 0]
+        # left_arm.set_named_target('left_arm_init')
+        # left_arm.go()
         flag.data = -1
     else:
         # Execute the planned trajectory
         left_arm.execute(traj)
-        rospy.sleep(2)
+        rospy.sleep(1)
 
         flag.data = 1
     ik_result_pub.publish(flag)
@@ -177,7 +180,7 @@ def run_grasp_ik(pose):
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(3)
+    rospy.sleep(1)
 
     # Open gripper, no need for delay
     gripper_open(True)
@@ -225,50 +228,6 @@ def run_grasp_ik(pose):
         rospy.logwarn('Left arm: No plan for prepare pose.')
 
 
-def run_grasp_fk():
-    # Up to down, 6 joints, value range see neurofull_left_ikfast.urdf
-    joint_pos_tgt = [0, 0, 0, 0, 1.57, 0]
-    left_arm.set_joint_value_target(joint_pos_tgt)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(0.5)
-
-    joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
-    left_arm.set_joint_value_target(joint_pos_tgt)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(3)
-
-    left_gripper.set_joint_value_target(left_gripper_open)
-    left_gripper.go()  # open gripper, no need for delay
-
-    joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0]
-    left_arm.set_joint_value_target(joint_pos_tgt)
-    traj = left_arm.plan()
-    left_arm.execute(traj)  # move forward
-    rospy.sleep(0.5)
-
-    joint_pos_tgt = [0.5, 0.1, 0, 0.65, 1.57, 0.4]
-    left_arm.set_joint_value_target(joint_pos_tgt)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(2)  # move forward down
-
-    left_gripper.set_joint_value_target(left_gripper_close)
-    left_gripper.go()  # close the gripper, no delay
-
-    joint_pos_tgt = [0.47, 0, 0, 1.2, 1.57, 0.33]
-    left_arm.set_joint_value_target(joint_pos_tgt)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(0.5)  # move up
-
-    joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0]
-    left_arm.set_joint_value_target(joint_pos_tgt)
-    traj = left_arm.plan()
-    left_arm.execute(traj)  # let lower arm horizontal
-
-
 def run_put_ik(pose):
     # First get near to the put pose
     put_pose_pre = pose  # Input pose is in base_link frame
@@ -300,15 +259,54 @@ def run_put_ik(pose):
         if ik_result_check(traj):
             # Open gripper and drop the object
             gripper_open(True)
-            # Back to prepare pose
-            left_arm.set_named_target('left_arm_pose1')
-            left_arm.go()
             # Put down the arm
             reset()
         else:
             rospy.logwarn('Left arm: No plan for final pose.')
     else:
         rospy.logwarn('Left arm: No plan for prepare pose.')
+
+
+def run_grasp_fk():
+    # Up to down, 6 joints, value range see neurobot.urdf
+    joint_pos_tgt = [0, 0, 0, 0, 1.57, 0]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+    rospy.sleep(0.5)
+
+    joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+    rospy.sleep(1)
+
+    gripper_open(True)
+
+    joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)  # move forward
+    rospy.sleep(0.5)
+
+    joint_pos_tgt = [0.5, 0.1, 0, 0.65, 1.57, 0.4]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+    rospy.sleep(1)  # move forward down
+
+    gripper_open(False)  # close the gripper, no delay
+
+    joint_pos_tgt = [0.47, 0, 0, 1.2, 1.57, 0.33]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+    rospy.sleep(0.5)  # move up
+
+    joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)  # let lower arm horizontal
 
 
 class ArmControl:
