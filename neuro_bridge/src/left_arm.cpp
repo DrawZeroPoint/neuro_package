@@ -46,7 +46,8 @@ int main(int argc,char **argv)
   
   pnh.getParam("deceleration", deceleration_);
   
-  ros::Subscriber sub = n.subscribe("/left_arm_controller/follow_joint_trajectory/goal", 1, Callback);
+  // The goal can be quick published, so the queue size should be reasonably bigger
+  ros::Subscriber sub = n.subscribe("/left_arm_controller/follow_joint_trajectory/goal", 30, Callback);
 
   // Use Twist message to communication with STM32
   geometry_msgs::Twist angle_state;

@@ -39,10 +39,10 @@ int main(int argc,char **argv)
   ros::init(argc,argv,"trackgripper_trajectory_controller");
   ros::NodeHandle n;
   
-  ros::Subscriber sub = n.subscribe("/left_gripper_controller/follow_joint_trajectory/goal", 1, Callback);
+  ros::Subscriber sub = n.subscribe("/left_gripper_controller/follow_joint_trajectory/goal", 5, Callback);
   
   std_msgs::Float32 gripper_state;
-  ros::Publisher gripper_pub = n.advertise<std_msgs::Float32>("gripper_pos", 1);
+  ros::Publisher gripper_pub = n.advertise<std_msgs::Float32>("gripper_pos", 5);
   
   while (n.ok()) {
     if(!trajectories_gripper.empty()) {
