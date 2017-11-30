@@ -273,6 +273,14 @@ def run_grasp_fk():
     left_arm.execute(traj)  # let lower arm horizontal
 
 
+def run_test():
+    # Up to down, 6 joints, value range see neurobot.urdf
+    joint_pos_tgt = [0.1, 0, 0, 0, 0, -0.4]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+
+
 class ArmControl:
     def __init__(self, ctrl_grasp_pose, ctrl_detect_table, ctrl_put_pose,
                  ctrl_arm, feed_result, use_fk):
@@ -343,6 +351,8 @@ class ArmControl:
             move(1, 0.05)
         elif data.data == 6:
             move(1, -0.05)
+        elif data.data == 99:
+            run_test()
         else:
             rospy.logwarn('Left arm: Unknown voice command.')
 
