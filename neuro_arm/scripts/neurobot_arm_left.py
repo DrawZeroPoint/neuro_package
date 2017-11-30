@@ -135,8 +135,6 @@ def ik_result_check_and_run(traj):
     else:
         # Execute the planned trajectory
         left_arm.execute(traj)
-        rospy.sleep(1)
-
         flag.data = 1
     ik_result_pub.publish(flag)
     return flag.data
