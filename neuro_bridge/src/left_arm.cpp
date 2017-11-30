@@ -127,7 +127,10 @@ int main(int argc,char **argv)
             vel_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].velocities[i]);
             
             angle_curr.push_back(act_msg->goal.trajectory.points[pos_count].positions[i]);
-            angle_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].positions[i]);
+            
+            //angle_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].positions[i]);
+            // Test: always use the last pose
+            angle_next.push_back(act_msg->goal.trajectory.points[traj_size - 1].positions[i]);
           }
           secs_to_next = act_msg->goal.trajectory.points[pos_count + 1].time_from_start
               - act_msg->goal.trajectory.points[pos_count].time_from_start;

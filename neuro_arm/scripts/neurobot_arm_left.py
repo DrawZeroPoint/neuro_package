@@ -144,12 +144,6 @@ def ik_result_check_and_run(traj):
 
 def run_grasp_ik(pose):
     # Use forward kinetic to get to initial position
-    joint_pos_tgt = [0, 0, 0, 0, 1.57, 0]
-    left_arm.set_joint_value_target(joint_pos_tgt)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    # rospy.sleep(0.5)
-
     joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
@@ -243,12 +237,6 @@ def run_put_ik(pose):
 
 def run_grasp_fk():
     # Up to down, 6 joints, value range see neurobot.urdf
-    joint_pos_tgt = [0, 0, 0, 0, 1.57, 0]
-    left_arm.set_joint_value_target(joint_pos_tgt)
-    traj = left_arm.plan()
-    left_arm.execute(traj)
-    rospy.sleep(0.5)
-
     joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
