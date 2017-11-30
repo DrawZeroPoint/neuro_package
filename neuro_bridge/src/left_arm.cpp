@@ -119,7 +119,7 @@ int main(int argc,char **argv)
           
           // Angle for current point and the next point
           vector<double> angle_curr;
-          vector<double> angle_next;
+          vector<double> angle_final;
           
           for(int i = 0; i < act_msg->goal.trajectory.joint_names.size(); i++) {
             // For each joint, at state id = pos_count, get its state and fill it into temp
@@ -130,7 +130,7 @@ int main(int argc,char **argv)
             
             //angle_next.push_back(act_msg->goal.trajectory.points[pos_count + 1].positions[i]);
             // Test: always use the last pose
-            angle_next.push_back(act_msg->goal.trajectory.points[traj_size - 1].positions[i]);
+            angle_final.push_back(act_msg->goal.trajectory.points[traj_size - 1].positions[i]);
           }
           secs_to_next = act_msg->goal.trajectory.points[pos_count + 1].time_from_start
               - act_msg->goal.trajectory.points[pos_count].time_from_start;
@@ -145,6 +145,21 @@ int main(int argc,char **argv)
           //vel_state.angular.y = (angle_next[4] - angle_curr[4])/secs_to_next.toSec() * deceleration_;
           //vel_state.angular.z = (angle_next[5] - angle_curr[5])/secs_to_next.toSec() * deceleration_;
           
+          // Check velocity
+          for (size_t v = 0; v < vel_next.size(); ++v) {
+            if (fabs(vel_next[v] > 1.0)) {
+              ROS_WARN("Left arm: Joint %d velocity exceed max value", v);
+              break;
+            }
+          }
+          // Check position
+          for (size_t v = 0; v < angle_final.size(); ++v) {
+            if (fabs(angle_final[v] > 1.6)) {
+              ROS_WARN("Left arm: Joint %d angle exceed max value", v);
+              break;
+            }
+          }
+          
           // Method 2: always use the next speed
           vel_state.linear.x = fabs(vel_next[0]);
           vel_state.linear.y = fabs(vel_next[1]);
@@ -153,12 +168,12 @@ int main(int argc,char **argv)
           vel_state.angular.y = fabs(vel_next[4]);
           vel_state.angular.z = fabs(vel_next[5]);
           
-          angle_state.linear.x = angle_next[0];
-          angle_state.linear.y = angle_next[1];
-          angle_state.linear.z = angle_next[2];
-          angle_state.angular.x = angle_next[3];
-          angle_state.angular.y = angle_next[4];
-          angle_state.angular.z = angle_next[5];
+          angle_state.linear.x = angle_final[0];
+          angle_state.linear.y = angle_final[1];
+          angle_state.linear.z = angle_final[2];
+          angle_state.angular.x = angle_final[3];
+          angle_state.angular.y = angle_final[4];
+          angle_state.angular.z = angle_final[5];
           
           pub_vel_state.publish(vel_state);
           pub_angle_state.publish(angle_state);
