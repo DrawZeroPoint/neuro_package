@@ -34,8 +34,8 @@ from moveit_commander import PlanningSceneInterface
 from std_msgs.msg import Int8
 from geometry_msgs.msg import PoseStamped
 
-left_gripper_open = [1.57]
-left_gripper_close = [0]
+left_gripper_open = [1.5]
+left_gripper_close = [0.2]
 
 # frame distance in z direction
 link_to_foot_ = 0.465
@@ -73,52 +73,27 @@ ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_siz
 
 
 def reset():
-    # # Define end effector pose, this pose make robot put down its arm
-    # target_pose = PoseStamped()
-    # target_pose.header.frame_id = reference_frame
-    # target_pose.header.stamp = rospy.Time.now()
-    #
-    # target_pose.pose.position.x = 0.45
-    # target_pose.pose.position.y = 0.28
-    # target_pose.pose.position.z = 1
-    # target_pose.pose.orientation.x = 0
-    # target_pose.pose.orientation.y = 0
-    # target_pose.pose.orientation.z = 0
-    # target_pose.pose.orientation.w = 1
-    #
-    # # Set the start state to the current state
-    # left_arm.set_start_state_to_current_state()
-    #
-    # # Set the goal pose of the end effector to the stored pose
-    # left_arm.set_pose_target(target_pose, left_eef)
-
     # Back to prepare pose
-    # left_arm.set_named_target('left_arm_pose1')
-    # left_arm.go()
-
     joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(1)
+    # rospy.sleep(1)
 
     # Reset using inverse kinetic
     init_positions = [0, 0, 0, 0, 0, 0]
     left_arm.set_joint_value_target(init_positions)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(1)
+    # rospy.sleep(1)
 
     # Close the hand
-    left_gripper.set_joint_value_target(left_gripper_close)
-    left_gripper.go()
-    rospy.sleep(1)
+    gripper_open(False)
 
 
 def move(direction, offset):
     left_arm.shift_pose_target(direction, offset, left_eef)
     left_arm.go()
-    rospy.sleep(1)
 
 
 def gripper_open(status):
@@ -173,13 +148,13 @@ def run_grasp_ik(pose):
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(0.5)
+    # rospy.sleep(0.5)
 
     joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(1)
+    # rospy.sleep(1)
 
     # Open gripper, no need for delay
     gripper_open(True)
@@ -188,7 +163,7 @@ def run_grasp_ik(pose):
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)  # move forward
-    rospy.sleep(0.5)
+    # rospy.sleep(0.5)
 
     # First get near to the target
     target_pose_pre = pose  # Input pose is in base_link frame

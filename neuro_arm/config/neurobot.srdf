@@ -32,6 +32,7 @@
         <joint name="left_arm_joint5" value="0" />
         <joint name="left_arm_joint6" value="0" />
     </group_state>
+
     <group_state name="left_arm_pose1" group="left_arm">
         <joint name="left_arm_joint1" value="0" />
         <joint name="left_arm_joint2" value="0" />
@@ -48,20 +49,6 @@
         <joint name="left_arm_joint5" value="1.57" />
         <joint name="left_arm_joint6" value="0.441" />
     </group_state>
-    <group_state name="left_gripper_open" group="left_gripper">
-        <joint name="left_joint_gripper_r" value="1.57" />
-    </group_state>
-    <group_state name="left_gripper_close" group="left_gripper">
-        <joint name="left_joint_gripper_r" value="0" />
-    </group_state>
-    <group_state name="right_arm_init" group="right_arm">
-        <joint name="right_arm_joint1" value="0" />
-        <joint name="right_arm_joint2" value="0" />
-        <joint name="right_arm_joint3" value="0" />
-        <joint name="right_arm_joint4" value="0" />
-        <joint name="right_arm_joint5" value="0" />
-        <joint name="right_arm_joint6" value="0" />
-    </group_state>
     <group_state name="left_arm_pose3" group="left_arm">
         <joint name="left_arm_joint1" value="-0.4234" />
         <joint name="left_arm_joint2" value="0.4322" />
@@ -70,6 +57,23 @@
         <joint name="left_arm_joint5" value="1.9404" />
         <joint name="left_arm_joint6" value="0.441" />
     </group_state>
+
+    <group_state name="left_gripper_open" group="left_gripper">
+        <joint name="left_joint_gripper_r" value="1.5" />
+    </group_state>
+    <group_state name="left_gripper_close" group="left_gripper">
+        <joint name="left_joint_gripper_r" value="0.2" />
+    </group_state>
+
+    <group_state name="right_arm_init" group="right_arm">
+        <joint name="right_arm_joint1" value="0" />
+        <joint name="right_arm_joint2" value="0" />
+        <joint name="right_arm_joint3" value="0" />
+        <joint name="right_arm_joint4" value="0" />
+        <joint name="right_arm_joint5" value="0" />
+        <joint name="right_arm_joint6" value="0" />
+    </group_state>
+
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="left_eef" parent_link="left_gripper_frame" group="left_gripper" />
     <end_effector name="right_eef" parent_link="right_gripper_frame" group="right_gripper" />
