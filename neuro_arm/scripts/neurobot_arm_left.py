@@ -73,7 +73,6 @@ ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_siz
 
 
 def reset():
-    left_arm.set_start_state_to_current_state()
     # Back to prepare pose
     joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
@@ -81,7 +80,6 @@ def reset():
     left_arm.execute(traj)
 
     # Reset using inverse kinetic
-    left_arm.set_start_state_to_current_state()
     init_positions = [0, 0, 0, 0, 0, 0]
     left_arm.set_joint_value_target(init_positions)
     traj = left_arm.plan()
