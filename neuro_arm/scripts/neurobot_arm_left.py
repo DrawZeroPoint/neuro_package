@@ -255,7 +255,7 @@ def run_grasp_fk():
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(1)
+    rospy.sleep(0.5)
 
     gripper_open(True)
 
@@ -269,7 +269,7 @@ def run_grasp_fk():
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    rospy.sleep(1)  # move forward down
+    rospy.sleep(0.5)  # move forward down
 
     gripper_open(False)  # close the gripper, no delay
 
