@@ -73,6 +73,9 @@ ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_siz
 
 
 def reset():
+    left_arm.clear_pose_targets()
+    group_variable_values = left_arm.get_current_joint_values()
+    print "============ Joint values: ", group_variable_values
     # Reset using inverse kinetic
     init_positions = [0, 0, 0, 0, 0, 0]
     left_arm.set_joint_value_target(init_positions)
@@ -156,8 +159,6 @@ def run_grasp_ik(pose):
     # Notice that in python, -= will also influence pose
     target_pose_pre.pose.position.x -= 0.1
 
-    left_arm.set_start_state_to_current_state()
-
     # Set the goal pose of the end effector to the prepare pose
     left_arm.set_pose_target(target_pose_pre, left_eef)
 
@@ -168,8 +169,6 @@ def run_grasp_ik(pose):
         target_pose.header.frame_id = reference_frame
         target_pose.header.stamp = rospy.Time.now()
         target_pose.pose.position.x += 0.1
-
-        left_arm.set_start_state_to_current_state()
 
         # Set the goal pose of the end effector to the stored pose
         left_arm.set_pose_target(target_pose, left_eef)
