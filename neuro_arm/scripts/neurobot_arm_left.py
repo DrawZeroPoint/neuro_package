@@ -82,6 +82,7 @@ def reset():
     # rospy.sleep(1)
 
     # Reset using inverse kinetic
+    left_arm.set_start_state_to_current_state()
     init_positions = [0, 0, 0, 0, 0, 0]
     left_arm.set_joint_value_target(init_positions)
     traj = left_arm.plan()

@@ -47,7 +47,7 @@ int main(int argc,char **argv)
   pnh.getParam("deceleration", deceleration_);
   
   // The goal can be quick published, so the queue size should be reasonably bigger
-  ros::Subscriber sub = n.subscribe("/left_arm_controller/follow_joint_trajectory/goal", 50, Callback);
+  ros::Subscriber sub = n.subscribe("/left_arm_controller/follow_joint_trajectory/goal", 200, Callback);
 
   // Use Twist message to communication with STM32
   geometry_msgs::Twist angle_state;
@@ -55,8 +55,8 @@ int main(int argc,char **argv)
 
   // Expand the queue for publishing is very important cause the traj can be transferred
   // to position and velocity command pretty quick, small queue will lead to lose intermediate data
-  ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 50);
-  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 50);
+  ros::Publisher pub_angle_state = n.advertise<geometry_msgs::Twist>("my_trajectory_pos_left", 200);
+  ros::Publisher pub_vel_state = n.advertise<geometry_msgs::Twist>("my_trajectory_vel_left", 200);
 
   // Result feedback
   ros::Publisher pub_result = n.advertise<std_msgs::Int8>("/feed/arm/left/move/result", 1);
