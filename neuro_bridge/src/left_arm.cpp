@@ -154,7 +154,7 @@ int main(int argc,char **argv)
           }
           // Check position
           for (size_t v = 0; v < angle_final.size(); ++v) {
-            if (fabs(angle_final[v] > 1.6)) {
+            if (fabs(angle_final[v] > 2.2)) {
               ROS_WARN("Left arm: Joint %d angle exceed max value", v);
               break;
             }
