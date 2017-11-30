@@ -61,8 +61,8 @@ left_eef = left_arm.get_end_effector_link()
 left_arm.allow_replanning(True)
 
 # Allow some leeway in position (meters) and orientation (radians)
-left_arm.set_goal_position_tolerance(0.015)
-left_arm.set_goal_orientation_tolerance(0.01)
+left_arm.set_goal_position_tolerance(0.02)
+left_arm.set_goal_orientation_tolerance(0.05)
 
 # Construct the initial scene object
 scene = PlanningSceneInterface()
