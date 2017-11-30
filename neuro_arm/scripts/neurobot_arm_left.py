@@ -61,7 +61,7 @@ left_eef = left_arm.get_end_effector_link()
 left_arm.allow_replanning(True)
 
 # Allow some leeway in position (meters) and orientation (radians)
-left_arm.set_goal_position_tolerance(0.01)
+left_arm.set_goal_position_tolerance(0.015)
 left_arm.set_goal_orientation_tolerance(0.01)
 
 # Construct the initial scene object
@@ -79,7 +79,6 @@ def reset():
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    # rospy.sleep(1)
 
     # Reset using inverse kinetic
     left_arm.set_start_state_to_current_state()
@@ -87,7 +86,6 @@ def reset():
     left_arm.set_joint_value_target(init_positions)
     traj = left_arm.plan()
     left_arm.execute(traj)
-    # rospy.sleep(1)
 
     # Close the hand
     gripper_open(False)

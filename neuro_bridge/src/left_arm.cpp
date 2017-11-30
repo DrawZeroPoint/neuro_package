@@ -142,13 +142,13 @@ int main(int argc,char **argv)
           //vel_state.angular.y = (angle_next[4] - angle_curr[4])/secs_to_next.toSec() * deceleration_;
           //vel_state.angular.z = (angle_next[5] - angle_curr[5])/secs_to_next.toSec() * deceleration_;
           
-          // Method 2: use max speed among current and next
-          vel_state.linear.x = fabs(vel_curr[0])>fabs(vel_next[0])?fabs(vel_curr[0]):fabs(vel_next[0]);
-          vel_state.linear.y = fabs(vel_curr[1])>fabs(vel_next[1])?fabs(vel_curr[1]):fabs(vel_next[1]);
-          vel_state.linear.z = fabs(vel_curr[2])>fabs(vel_next[2])?fabs(vel_curr[2]):fabs(vel_next[2]);
-          vel_state.angular.x = fabs(vel_curr[3])>fabs(vel_next[3])?fabs(vel_curr[3]):fabs(vel_next[3]);
-          vel_state.angular.y = fabs(vel_curr[4])>fabs(vel_next[4])?fabs(vel_curr[4]):fabs(vel_next[4]);
-          vel_state.angular.z = fabs(vel_curr[5])>fabs(vel_next[5])?fabs(vel_curr[5]):fabs(vel_next[5]);
+          // Method 2: always use the next speed
+          vel_state.linear.x = fabs(vel_next[0]);
+          vel_state.linear.y = fabs(vel_next[1]);
+          vel_state.linear.z = fabs(vel_next[2]);
+          vel_state.angular.x = fabs(vel_next[3]);
+          vel_state.angular.y = fabs(vel_next[4]);
+          vel_state.angular.z = fabs(vel_next[5]);
           
           angle_state.linear.x = angle_next[0];
           angle_state.linear.y = angle_next[1];
