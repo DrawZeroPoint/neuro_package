@@ -164,13 +164,15 @@ int main(int argc,char **argv)
           pub_angle_state.publish(angle_state);
           
           // No nedd to add time delay
-          ros::Duration d = act_msg->goal.trajectory.points[traj_size - 1].time_from_start
-                            - act_msg->goal.trajectory.points[0].time_from_start;
-          d.sleep();
           // Prepare for the next state
           pos_count++;
         }
         while(pos_count < traj_size - 1); // Omit the last point's velocity cause it is 0
+        
+        // Sleep for each traj
+        ros::Duration d = act_msg->goal.trajectory.points[traj_size - 1].time_from_start
+                          - act_msg->goal.trajectory.points[0].time_from_start;
+        d.sleep();
       }
       // All traj have been published, so we need clear the temp
       trajectories.clear();
