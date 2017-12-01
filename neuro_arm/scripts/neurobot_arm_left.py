@@ -37,6 +37,7 @@ from geometry_msgs.msg import PoseStamped
 left_gripper_open = [1.5]
 left_gripper_close = [0.2]
 
+# Recommended table height: 0.89
 # frame distance in z direction
 link_to_foot_ = 0.465
 
@@ -256,7 +257,7 @@ def run_put_fk(pose):
         rospy.logwarn('Left arm: Put will not be executed due to inappropriate pose.')
         return
     # move forward down
-    joint_pos_tgt = [0, 0, 0, 1.6, 1.57, 0.4]
+    joint_pos_tgt = [0, 0, 0, 1.64, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
