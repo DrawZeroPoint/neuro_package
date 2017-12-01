@@ -191,9 +191,7 @@ def run_put_ik(pose):
     put_pose_pre.header.frame_id = reference_frame
     put_pose_pre.header.stamp = rospy.Time.now()
     # Notice that in python, -= will also influence pose
-    put_pose_pre.pose.position.z += 0.05
-
-    left_arm.set_start_state_to_current_state()
+    put_pose_pre.pose.position.z += 0.07
 
     # Set the goal pose of the end effector to the prepare pose
     left_arm.set_pose_target(put_pose_pre, left_eef)
@@ -204,9 +202,7 @@ def run_put_ik(pose):
         put_pose = pose  # Input pose is in base_link frame
         put_pose.header.frame_id = reference_frame
         put_pose.header.stamp = rospy.Time.now()
-        put_pose.pose.position.z -= 0.05
-
-        left_arm.set_start_state_to_current_state()
+        put_pose.pose.position.z -= 0.06
 
         # Set the goal pose of the end effector to the stored pose
         left_arm.set_pose_target(put_pose, left_eef)
@@ -216,6 +212,9 @@ def run_put_ik(pose):
         if ik_result_check_and_run(traj):
             # Open gripper and drop the object
             gripper_open(True)
+            # Back to prepare pose
+            left_arm.set_named_target('left_arm_pose1')
+            left_arm.go()
             # Put down the arm
             reset()
         else:
@@ -262,9 +261,21 @@ def run_grasp_fk():
     left_arm.execute(traj)  # let lower arm horizontal
 
 
-def run_test():
-    # Up to down, 6 joints, value range see neurobot.urdf
-    joint_pos_tgt = [0.1, 0, 0, 0, 0, -0.4]
+def run_test(joint_id):
+    # Test each joint to see if it has lost power
+    joint_pos_tgt = [0, 0, 0, 0, 0, 0]
+    if joint_id - 90 == 1:
+        joint_pos_tgt = [0.1, 0, 0, 0, 0, 0]
+    if joint_id - 90 == 2:
+        joint_pos_tgt = [0, 0.1, 0, 0, 0, 0]
+    if joint_id - 90 == 3:
+        joint_pos_tgt = [0, 0, 0.1, 0, 0, 0]
+    if joint_id - 90 == 4:
+        joint_pos_tgt = [0, 0, 0, 0.1, 0, 0]
+    if joint_id - 90 == 5:
+        joint_pos_tgt = [0, 0, 0, 0, 0.1, 0]
+    if joint_id - 90 == 6:
+        joint_pos_tgt = [0, 0, 0, 0, 0, 0.1]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
@@ -340,8 +351,8 @@ class ArmControl:
             move(1, 0.05)
         elif data.data == 6:
             move(1, -0.05)
-        elif data.data == 99:
-            run_test()
+        elif 96 >= data.data >= 91:
+            run_test(data.data)
         else:
             rospy.logwarn('Left arm: Unknown voice command.')
 
