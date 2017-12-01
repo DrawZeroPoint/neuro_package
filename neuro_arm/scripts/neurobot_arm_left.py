@@ -188,9 +188,12 @@ def run_grasp_ik(pose):
         # Plan the trajectory to the goal
         traj = left_arm.plan()
         if ik_result_check_and_run(traj):
-            gripper_open(False)
             # Wait to be steady
-            rospy.sleep(2)
+            rospy.sleep(1)
+            gripper_open(False)
+            # move backward
+            left_arm.set_named_target('left_arm_pose1')
+            left_arm.go()
         else:
             rospy.logwarn('Left arm: No plan for final pose.')
     else:
