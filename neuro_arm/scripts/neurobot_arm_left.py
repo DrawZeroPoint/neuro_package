@@ -347,8 +347,6 @@ class ArmControl:
         else:
             rospy.loginfo('Left arm: Ready to move using inverse kinetic.')
 
-        self._clear_octomap = rospy.ServiceProxy('clear_octomap', Empty)
-
     def _target_pose_cb(self, pose):
         if not self._planed:
             # Recheck the method param
@@ -358,11 +356,11 @@ class ArmControl:
             pub_signal(20)  # Orange flash for starting
             if self._use_fk:
                 rospy.loginfo('Left arm: Using forward kinetic.')
-                self._clear_octomap()
+                scene.remove_world_object()
                 run_grasp_fk()
             else:
                 rospy.loginfo('Left arm: Using inverse kinetic.')
-                self._clear_octomap()
+                scene.remove_world_object()
                 run_grasp_ik(pose)
             self._planed = True
             # Since we add table before grasp, we need remove it after grasp
