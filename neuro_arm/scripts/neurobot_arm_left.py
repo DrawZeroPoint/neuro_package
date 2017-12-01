@@ -31,7 +31,7 @@ import sys
 import moveit_commander
 from moveit_commander import PlanningSceneInterface
 
-from std_msgs.msg import Int8
+from std_msgs.msg import Int8, UInt16
 from geometry_msgs.msg import PoseStamped
 
 left_gripper_open = [1.5]
@@ -70,12 +70,20 @@ map_frame = 'map'  # Reference frame for scene
 
 # Publish inverse kinetic result
 ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_size=1)
-
+# Publish signal when start moving
+signal_pub = rospy.Publisher('/vision/error', UInt16, queue_size=1)
 # Param to control is putting down object
 param_is_put = '/comm/param/ctrl/is_put'
 
 # Current status
 current_status = 'left_arm_init'
+
+
+def pub_signal(code):
+    # Publish start signal
+    signal = UInt16()
+    signal.data = code
+    signal_pub.publish()
 
 
 def add_table(pose):
@@ -110,6 +118,7 @@ def gripper_open(status):
 
 
 def reset():
+    pub_signal(20)  # Orange flash for starting
     left_arm.clear_pose_targets()
     # Reset using inverse kinetic
     left_arm.set_named_target('left_arm_init')
@@ -208,7 +217,10 @@ def run_put_ik(pose):
     # Plan the trajectory to the goal
     traj = left_arm.plan()
     if ik_result_check_and_run(traj):
-        put_pose = pose  # Input pose is in base_link frame
+        # Wait to be steady
+        rospy.sleep(2)
+        # Input pose is in base_link frame
+        put_pose = pose
         put_pose.header.frame_id = reference_frame
         put_pose.header.stamp = rospy.Time.now()
         put_pose.pose.position.z -= 0.06
@@ -304,6 +316,7 @@ class ArmControl:
             if rospy.has_param('/param/arm/left/use_fk'):
                 self._use_fk = rospy.get_param('/param/arm/left/use_fk')
 
+            pub_signal(20)  # Orange flash for starting
             if self._use_fk:
                 rospy.loginfo('Left arm: Using forward kinetic.')
                 run_grasp_fk()
@@ -321,6 +334,7 @@ class ArmControl:
             # _planed not being reset means we didn't release the object in hand
             # so that we can put it down, meanwhile, we can reset _planed and the arm
             self._planed = False
+            pub_signal(20)  # Orange flash for starting
             run_put_ik(pose)
 
     @staticmethod
