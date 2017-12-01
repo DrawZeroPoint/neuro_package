@@ -253,7 +253,7 @@ def run_put_fk(pose):
         rospy.logwarn('Left arm: Put will not be executed due to inappropriate pose.')
         return
     # move forward down
-    joint_pos_tgt = [0, 0, 0, 0.75, 1.57, 0.4]
+    joint_pos_tgt = [0, 0, 0, 1.57, 1.57, 0.4]
     left_arm.set_joint_value_target(joint_pos_tgt)
     traj = left_arm.plan()
     left_arm.execute(traj)
