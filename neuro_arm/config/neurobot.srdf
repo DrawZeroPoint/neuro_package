@@ -33,6 +33,15 @@
         <joint name="left_arm_joint6" value="0" />
     </group_state>
 
+    <group_state name="left_arm_pose_pre" group="left_arm">
+        <joint name="left_arm_joint1" value="-0.4" />
+        <joint name="left_arm_joint2" value="0" />
+        <joint name="left_arm_joint3" value="0" />
+        <joint name="left_arm_joint4" value="1.57" />
+        <joint name="left_arm_joint5" value="1.57" />
+        <joint name="left_arm_joint6" value="0.4" />
+    </group_state>
+
     <group_state name="left_arm_pose1" group="left_arm">
         <joint name="left_arm_joint1" value="0" />
         <joint name="left_arm_joint2" value="0" />

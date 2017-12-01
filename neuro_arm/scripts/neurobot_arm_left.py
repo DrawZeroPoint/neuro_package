@@ -121,10 +121,10 @@ def reset():
 
 
 def back_to_prepare_pose():
-    left_arm.set_named_target('left_arm_pose1')
+    left_arm.set_named_target('left_arm_pose_pre')
     left_arm.go()
     global current_status
-    current_status = 'left_arm_pose1'
+    current_status = 'left_arm_pose_pre'
 
 
 def ik_result_check_and_run(traj):
@@ -146,18 +146,13 @@ def ik_result_check_and_run(traj):
 
 
 def run_grasp_ik(pose):
-    if current_status != 'left_arm_pose1':
+    if current_status != 'left_arm_pose_pre':
         # Use forward kinetic to get to initial position
-        joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
-        left_arm.set_joint_value_target(joint_pos_tgt)
-        traj = left_arm.plan()
-        left_arm.execute(traj)
-
         # Open gripper, no need for delay
         gripper_open(True)
 
         # move forward
-        left_arm.set_named_target('left_arm_pose1')
+        left_arm.set_named_target('left_arm_pose_pre')
         left_arm.go()
 
     # First get near to the target
@@ -195,7 +190,7 @@ def run_grasp_ik(pose):
 
 
 def run_put_ik(pose):
-    if current_status != 'left_arm_pose1':
+    if current_status != 'left_arm_pose_pre':
         # Not in prepare pose means no object to put
         rospy.set_param(param_is_put, 0)
         rospy.logwarn('Left arm: Put will not be executed due to inappropriate pose.')
@@ -236,18 +231,12 @@ def run_put_ik(pose):
 
 
 def run_grasp_fk():
-    if current_status != 'left_arm_pose1':
+    if current_status != 'left_arm_pose_pre':
         # Use forward kinetic to get to initial position
-        joint_pos_tgt = [-0.4, 0, 0, 1.57, 1.57, 0.4]
-        left_arm.set_joint_value_target(joint_pos_tgt)
-        traj = left_arm.plan()
-        left_arm.execute(traj)
-
         # Open gripper, no need for delay
         gripper_open(True)
-
         # move forward
-        left_arm.set_named_target('left_arm_pose1')
+        left_arm.set_named_target('left_arm_pose_pre')
         left_arm.go()
 
     # move forward down
