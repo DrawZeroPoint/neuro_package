@@ -1,39 +1,13 @@
 #!/usr/bin/env python
 
-"""
-    moveit_ik_demo.py - Version 0.1 2014-01-14
-    
-    Use inverse kinematics to move the end effector to a specified pose
-    
-    Created for the Pi Robot Project: http://www.pirobot.org
-    Copyleft (c) 2014 Patrick Goebel.  All lefts reserved.
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.5
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details at:
-    
-    http://www.gnu.org/licenses/gpl.html
-
-    global_name = rospy.get_param("/global_name")
-    relative_name = rospy.get_param("relative_name")
-    private_param = rospy.get_param('~private_name')
-    default_param = rospy.get_param('default_param', 'default_value')
-"""
-
 import rospy
 import sys
 import moveit_commander
 from moveit_commander import PlanningSceneInterface
-from moveit_msgs.msg import CollisionObject, Grasp
+# from moveit_msgs.msg import CollisionObject, Grasp
 
 from std_msgs.msg import Int8, UInt16
-from std_srvs.srv import Empty
+# from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped
 
 left_gripper_open = [1.5]
