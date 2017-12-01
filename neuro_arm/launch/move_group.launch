@@ -47,17 +47,6 @@
     <param name="jiggle_fraction" value="$(arg jiggle_fraction)" />
 
     <!-- MoveGroup capabilities to load -->
-    <param name="capabilities" value="move_group/MoveGroupCartesianPathService
-				      move_group/MoveGroupExecuteTrajectoryAction
-				      move_group/MoveGroupKinematicsService
-				      move_group/MoveGroupMoveAction
-				      move_group/MoveGroupPlanService
-				      move_group/MoveGroupQueryPlannersService
-				      move_group/MoveGroupStateValidationService
-				      move_group/MoveGroupGetPlanningSceneService
-				      move_group/ApplyPlanningSceneService
-				      move_group/ClearOctomapService
-				      " />
 
     <!-- load these non-default MoveGroup capabilities -->
     <!--
