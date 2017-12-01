@@ -189,6 +189,8 @@ def run_grasp_ik(pose):
         traj = left_arm.plan()
         if ik_result_check_and_run(traj):
             gripper_open(False)
+            # Wait to be steady
+            rospy.sleep(2)
         else:
             rospy.logwarn('Left arm: No plan for final pose.')
     else:
