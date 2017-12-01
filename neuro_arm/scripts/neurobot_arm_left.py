@@ -234,7 +234,7 @@ def run_put_ik(pose):
             # Open gripper and drop the object
             gripper_open(True)
             # Wait to be steady
-            rospy.sleep(2)
+            rospy.sleep(1)
             # Move backward
             move(0, -0.1)
         else:
@@ -242,6 +242,28 @@ def run_put_ik(pose):
     else:
         rospy.logwarn('Left arm: No plan for prepare putting.')
 
+    # Back to prepare pose
+    back_to_prepare_pose()
+
+
+def run_put_fk(pose):
+    if current_status != 'left_arm_pose_pre':
+        # Not in prepare pose means no object to put
+        rospy.set_param(param_is_put, 0)
+        rospy.logwarn('Left arm: Put will not be executed due to inappropriate pose.')
+        return
+    # move forward down
+    joint_pos_tgt = [0.5, 0.1, 0, 0.65, 1.57, 0.4]
+    left_arm.set_joint_value_target(joint_pos_tgt)
+    traj = left_arm.plan()
+    left_arm.execute(traj)
+
+    # Open gripper and drop the object
+    gripper_open(True)
+    # Wait to be steady
+    rospy.sleep(1)
+    # Move backward
+    move(0, -0.1)
     # Back to prepare pose
     back_to_prepare_pose()
 
@@ -339,7 +361,8 @@ class ArmControl:
             # so that we can put it down, meanwhile, we can reset _planed and the arm
             self._planed = False
             pub_signal(20)  # Orange flash for starting
-            run_put_ik(pose)
+            run_put_fk(pose)
+            # run_put_ik(pose)
 
     @staticmethod
     def _table_cb(table):
