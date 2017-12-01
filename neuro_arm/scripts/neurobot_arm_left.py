@@ -71,6 +71,9 @@ map_frame = 'map'  # Reference frame for scene
 # Publish inverse kinetic result
 ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_size=1)
 
+# Param to control is putting down object
+param_is_put = '/comm/param/ctrl/is_put'
+
 # Current status
 current_status = 'left_arm_init'
 
@@ -194,8 +197,8 @@ def run_grasp_ik(pose):
 def run_put_ik(pose):
     if current_status != 'left_arm_pose1':
         # Not in prepare pose means no object to put
-        rospy.set_param('/comm/param/ctrl/is_put', False)
-        rospy.logwarn('Left arm: Put will not be executed due to wrong pose.')
+        rospy.set_param(param_is_put, 0)
+        rospy.logwarn('Left arm: Put will not be executed due to inappropriate pose.')
         return
     # First get near to the put pose
     put_pose_pre = pose  # Input pose is in base_link frame
