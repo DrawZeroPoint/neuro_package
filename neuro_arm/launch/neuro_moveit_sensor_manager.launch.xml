@@ -1,5 +1,5 @@
 <launch>
 
-  <!-- This file is empty but useful -->
+  <rosparam command="load" file="$(find neuro_arm)/config/sensors.yaml" />
 
 </launch>

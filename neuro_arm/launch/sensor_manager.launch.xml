@@ -1,10 +1,10 @@
 <launch>
 
   <!-- This file makes it easy to include the settings for sensor managers -->
-  <rosparam command="load" file="$(find neuro_arm)/config/sensors.yaml" />
 
   <!-- Params for the octomap monitor -->
   <param name="octomap_frame" type="string" value="odom" />
+  <!-- The resolution can not be too small or unexpected bug will happen -->
   <param name="octomap_resolution" type="double" value="0.025" />
   <param name="max_range" type="double" value="2.0" />
 
