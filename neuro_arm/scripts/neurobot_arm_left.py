@@ -211,7 +211,7 @@ def run_put_ik(pose):
     put_pose_pre.header.frame_id = reference_frame
     put_pose_pre.header.stamp = rospy.Time.now()
     # Notice that in python, -= will also influence pose
-    put_pose_pre.pose.position.z += 0.07
+    put_pose_pre.pose.position.z += 0.02
 
     # Set the goal pose of the end effector to the prepare pose
     left_arm.set_pose_target(put_pose_pre, left_eef)
@@ -219,13 +219,11 @@ def run_put_ik(pose):
     # Plan the trajectory to the goal
     traj = left_arm.plan()
     if ik_result_check_and_run(traj):
-        # Wait to be steady
-        rospy.sleep(2)
         # Input pose is in base_link frame
         put_pose = pose
         put_pose.header.frame_id = reference_frame
         put_pose.header.stamp = rospy.Time.now()
-        put_pose.pose.position.z -= 0.06
+        put_pose.pose.position.z -= 0.02
 
         # Set the goal pose of the end effector to the stored pose
         left_arm.set_pose_target(put_pose, left_eef)
@@ -235,6 +233,10 @@ def run_put_ik(pose):
         if ik_result_check_and_run(traj):
             # Open gripper and drop the object
             gripper_open(True)
+            # Wait to be steady
+            rospy.sleep(2)
+            # Move backward
+            move(0, -0.1)
         else:
             rospy.logwarn('Left arm: No plan for final put.')
     else:
