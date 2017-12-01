@@ -30,8 +30,10 @@ import rospy
 import sys
 import moveit_commander
 from moveit_commander import PlanningSceneInterface
+from moveit_msgs.msg import CollisionObject, Grasp
 
 from std_msgs.msg import Int8, UInt16
+from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped
 
 left_gripper_open = [1.5]
@@ -78,6 +80,8 @@ param_is_put = '/comm/param/ctrl/is_put'
 
 # Current status
 current_status = 'left_arm_init'
+
+# Try pick place function of moveit
 
 
 def pub_signal(code):
@@ -188,6 +192,7 @@ def run_grasp_ik(pose):
 
         # Plan the trajectory to the goal
         traj = left_arm.plan()
+
         if ik_result_check_and_run(traj):
             # Wait to be steady
             rospy.sleep(1)
@@ -342,6 +347,8 @@ class ArmControl:
         else:
             rospy.loginfo('Left arm: Ready to move using inverse kinetic.')
 
+        self._clear_octomap = rospy.ServiceProxy('clear_octomap', Empty)
+
     def _target_pose_cb(self, pose):
         if not self._planed:
             # Recheck the method param
@@ -351,9 +358,11 @@ class ArmControl:
             pub_signal(20)  # Orange flash for starting
             if self._use_fk:
                 rospy.loginfo('Left arm: Using forward kinetic.')
+                self._clear_octomap()
                 run_grasp_fk()
             else:
                 rospy.loginfo('Left arm: Using inverse kinetic.')
+                self._clear_octomap()
                 run_grasp_ik(pose)
             self._planed = True
             # Since we add table before grasp, we need remove it after grasp
