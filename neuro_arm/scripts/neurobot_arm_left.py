@@ -356,13 +356,9 @@ class ArmControl:
             pub_signal(20)  # Orange flash for starting
             if self._use_fk:
                 rospy.loginfo('Left arm: Using forward kinetic.')
-                names = scene.get_known_object_names()
-                scene.remove_world_object(names)
                 run_grasp_fk()
             else:
                 rospy.loginfo('Left arm: Using inverse kinetic.')
-                names = scene.get_known_object_names()
-                scene.remove_world_object(names)
                 run_grasp_ik(pose)
             self._planed = True
             # Since we add table before grasp, we need remove it after grasp
