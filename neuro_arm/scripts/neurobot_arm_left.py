@@ -425,6 +425,7 @@ class NodeMain:
 
     @staticmethod
     def shutdown():
+        reset()
         rospy.loginfo("Left arm: Shutting down")
 
 
