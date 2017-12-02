@@ -56,6 +56,8 @@ param_is_put = '/comm/param/ctrl/is_put'
 current_status = 'left_arm_init'
 
 # Try pick place function of moveit
+# Publish transform for debug
+# rosrun tf static_transform_publisher --args=0 0 0 0 0 0 odom base_footprint 100
 
 
 def pub_signal(code):
@@ -352,7 +354,7 @@ class ArmControl:
         else:
             pass
 
-    def _target_loc_cb(self):
+    def _target_loc_cb(self, pose):
         self._clear_octomap()
 
     def _put_pose_cb(self, pose):
