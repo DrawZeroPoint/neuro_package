@@ -57,9 +57,6 @@ current_status = 'left_arm_init'
 
 # Try pick place function of moveit
 
-# Service that clear the octomap
-clear_octomap = rospy.ServiceProxy('clear_octomap', Empty)
-
 
 def pub_signal(code):
     # Publish start signal
@@ -319,6 +316,13 @@ class ArmControl:
 
         # Callback for receiving voice command
         self._cb_reset = rospy.Subscriber(ctrl_arm, Int8, self._voice_cb)
+
+        # Service that clear the octomap
+        rospy.loginfo('Waiting for clear_octomap')
+        rospy.wait_for_service('/clear_octomap')
+        self._clear_octomap = rospy.ServiceProxy('/clear_octomap', Empty)
+        rospy.loginfo('Got clear_octomap')
+
         if use_fk:
             rospy.loginfo('Left arm: Ready to move using forward kinetic.')
         else:
@@ -341,7 +345,7 @@ class ArmControl:
             # Since we add table before grasp, we need remove it after grasp
             delete_table()
             # Clear octomap generated during approaching to the target after grasping
-            clear_octomap()
+            self._clear_octomap()
             pub_signal(0)  # Green for finish
         else:
             pass
@@ -354,6 +358,7 @@ class ArmControl:
             pub_signal(1)  # Yellow for starting
             run_put_fk(pose)
             # run_put_ik(pose)
+            self._clear_octomap()
             pub_signal(0)  # Green for finish
 
     @staticmethod
