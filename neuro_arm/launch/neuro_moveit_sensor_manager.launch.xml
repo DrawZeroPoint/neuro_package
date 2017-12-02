@@ -8,6 +8,5 @@
   <!-- sensors used to update the map -->
   <rosparam if="$(arg use_pointcloud)" command="load" file="$(find neuro_arm)/config/sensors_pointcloud.yaml" />
   <rosparam unless="$(arg use_pointcloud)" command="load" file="$(find neuro_arm)/config/sensors_depth.yaml" />
-  <rosparam command="load" file="$(find neuro_arm)/config/sensors.yaml" />
 
 </launch>
