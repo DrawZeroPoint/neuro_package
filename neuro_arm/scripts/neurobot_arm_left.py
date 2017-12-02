@@ -302,13 +302,15 @@ def run_test(joint_id):
 
 
 class ArmControl:
-    def __init__(self, ctrl_grasp_pose, ctrl_detect_table, ctrl_put_pose,
+    def __init__(self, ctrl_grasp_pose, ctrl_grasp_location, ctrl_detect_table, ctrl_put_pose,
                  ctrl_arm, feed_result, use_fk):
         self._use_fk = use_fk
         self._planed = False
 
         # Callbacks for grasp
         self._cb_tgt = rospy.Subscriber(ctrl_grasp_pose, PoseStamped, self._target_pose_cb, queue_size=1)
+        self._cb_tgt_loc = rospy.Subscriber(ctrl_grasp_location, PoseStamped, self._target_loc_cb, queue_size=1)
+
         self._cb_table = rospy.Subscriber(ctrl_detect_table, PoseStamped, self._table_cb, queue_size=1)
         self._cb_put = rospy.Subscriber(ctrl_put_pose, PoseStamped, self._put_pose_cb, queue_size=1)
 
@@ -349,6 +351,9 @@ class ArmControl:
             pub_signal(0)  # Green for finish
         else:
             pass
+
+    def _target_loc_cb(self):
+        self._clear_octomap()
 
     def _put_pose_cb(self, pose):
         if self._planed:
@@ -399,6 +404,8 @@ class NodeMain:
 
         # Get topics names from launch file
         vision_grasp_pose = rospy.get_param('~ctrl_vision_grasp_pose', '/ctrl/vision/grasp/pose')
+        vision_grasp_loc = rospy.get_param('~ctrl_vision_grasp_location', '/ctrl/vision/grasp/location')
+
         vision_detect_table = rospy.get_param('~ctrl_vision_detect_table', '/ctrl/vision/detect/table')
         vision_put_pose = rospy.get_param('~ctrl_vision_put_pose', '/ctrl/vision/put/pose')
         voice_ctrl_arm = rospy.get_param('~ctrl_voice_arm_left', '/ctrl/voice/arm/left')
@@ -414,7 +421,7 @@ class NodeMain:
             rospy.logwarn("Param use_fk not available, use fk by default.")
         rospy.set_param('/param/arm/left/use_fk', use_fk)
 
-        ArmControl(vision_grasp_pose, vision_detect_table, vision_put_pose,
+        ArmControl(vision_grasp_pose, vision_grasp_loc, vision_detect_table, vision_put_pose,
                    voice_ctrl_arm, arm_feed_result, use_fk)
         rospy.spin()
 
