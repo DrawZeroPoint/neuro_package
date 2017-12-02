@@ -7,7 +7,7 @@ from moveit_commander import PlanningSceneInterface
 # from moveit_msgs.msg import CollisionObject, Grasp
 
 from std_msgs.msg import Int8, UInt16
-# from std_srvs.srv import Empty
+from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped
 
 left_gripper_open = [1.5]
@@ -56,6 +56,9 @@ param_is_put = '/comm/param/ctrl/is_put'
 current_status = 'left_arm_init'
 
 # Try pick place function of moveit
+
+# Service that clear the octomap
+clear_octomap = rospy.ServiceProxy('clear_octomap', Empty)
 
 
 def pub_signal(code):
@@ -327,7 +330,7 @@ class ArmControl:
             if rospy.has_param('/param/arm/left/use_fk'):
                 self._use_fk = rospy.get_param('/param/arm/left/use_fk')
 
-            pub_signal(20)  # Orange flash for starting
+            pub_signal(1)  # Yellow for starting
             if self._use_fk:
                 rospy.loginfo('Left arm: Using forward kinetic.')
                 run_grasp_fk()
@@ -337,6 +340,9 @@ class ArmControl:
             self._planed = True
             # Since we add table before grasp, we need remove it after grasp
             delete_table()
+            # Clear octomap generated during approaching to the target after grasping
+            clear_octomap()
+            pub_signal(0)  # Green for finish
         else:
             pass
 
@@ -345,9 +351,10 @@ class ArmControl:
             # _planed not being reset means we didn't release the object in hand
             # so that we can put it down, meanwhile, we can reset _planed and the arm
             self._planed = False
-            pub_signal(20)  # Orange flash for starting
+            pub_signal(1)  # Yellow for starting
             run_put_fk(pose)
             # run_put_ik(pose)
+            pub_signal(0)  # Green for finish
 
     @staticmethod
     def _table_cb(table):
