@@ -32,9 +32,13 @@
     <arg name="controller_manager" value="fake" if="$(arg fake_execution)"/>
   </include>
 
+  <!-- sensor settings -->
+  <!-- whether to use the pointcloud (on Gazebo) or depth image (on real robot) octomap updater -->
+  <arg name="use_pointcloud" default="true"/>
   <!-- Sensors Functionality -->
   <include ns="move_group" file="$(find neuro_arm)/launch/sensor_manager.launch.xml" if="$(arg allow_trajectory_execution)">
     <arg name="moveit_sensor_manager" default="neuro" />
+    <arg name="use_pointcloud" value="$(arg use_pointcloud)" />
   </include>
 
   <!-- Start the actual move_group node/action server -->
@@ -47,25 +51,17 @@
     <param name="jiggle_fraction" value="$(arg jiggle_fraction)" />
 
     <!-- MoveGroup capabilities to load -->
-    <param name="capabilities" value="move_group/ClearOctomapService" />
-          <!--move_group/MoveGroupCartesianPathService-->
-          <!--move_group/MoveGroupExecuteTrajectoryAction-->
-          <!--move_group/MoveGroupKinematicsService-->
-          <!--move_group/MoveGroupMoveAction-->
-          <!--move_group/MoveGroupPickPlaceAction-->
-          <!--move_group/MoveGroupPlanService-->
-          <!--move_group/MoveGroupQueryPlannersService-->
-          <!--move_group/MoveGroupStateValidationService-->
-          <!--move_group/MoveGroupGetPlanningSceneService-->
-          <!--move_group/ApplyPlanningSceneService-->
-
-    <!-- inhibit these default MoveGroup capabilities -->
-    <!--
-    <param name="disable_capabilities" value="
-                  move_group/MoveGroupKinematicsService
-                  move_group/ClearOctomapService
-                  " />
-    -->
+    <param name="capabilities" value="move_group/MoveGroupCartesianPathService
+				      move_group/MoveGroupExecuteService
+				      move_group/MoveGroupKinematicsService
+				      move_group/MoveGroupMoveAction
+				      move_group/MoveGroupPickPlaceAction
+				      move_group/MoveGroupPlanService
+				      move_group/MoveGroupQueryPlannersService
+				      move_group/MoveGroupStateValidationService
+				      move_group/MoveGroupGetPlanningSceneService
+				      move_group/ClearOctomapService
+				      " />
 
     <!-- Publish the planning scene of the physical robot so that rviz plugin can know actual robot -->
     <param name="planning_scene_monitor/publish_planning_scene" value="$(arg publish_monitored_planning_scene)" />

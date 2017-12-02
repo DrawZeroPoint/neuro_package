@@ -1,0 +1,15 @@
+# This file configures the DepthImageOctomapUpdater. It's faster than the PointCloudOctomapUpdater,
+# but it doesn't work in Gazebo (because the simulated depth image is broken).
+sensors:
+  - sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
+    image_topic: /vision/depth/image_rect/except_object
+    far_clipping_plane_distance: 3.0
+    near_clipping_plane_distance: 0.25
+    padding_scale: 1.0
+    padding_offset: 0.1
+    queue_size: 1
+    skip_vertical_pixels: 1
+    skip_horizontal_pixels: 1
+    shadow_threshold: 0.2
+    # this last topic is just to debug, having it adds processing time
+    # filtered_cloud_topic: filtered_cloud
