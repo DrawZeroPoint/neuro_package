@@ -2,7 +2,7 @@
 # but it doesn't work in Gazebo (because the simulated depth image is broken).
 sensors:
   - sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
-    image_topic: /vision/depth/image_rect/except_object
+    image_topic: /vision/depth/except_object
     far_clipping_plane_distance: 3.0
     near_clipping_plane_distance: 0.25
     padding_scale: 1.0
