@@ -6,7 +6,7 @@
 
   <!-- Params for the octomap monitor -->
   <!-- The resolution can not be too small or unexpected bug will happen -->
-  <param name="octomap_resolution" type="double" value="0.025" />
+  <param name="octomap_resolution" type="double" value="0.03" />
   <param name="max_range" type="double" value="2.0" />
 
   <!-- Load the robot specific sensor manager; this sets the moveit_sensor_manager ROS parameter -->
