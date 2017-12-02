@@ -57,7 +57,6 @@
     <child link="base_leg"/>
   </joint>
 
-
   <link
     name="base_link">
     <inertial>
