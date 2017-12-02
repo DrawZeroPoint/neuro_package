@@ -319,7 +319,7 @@ class ArmControl:
 
         # Service that clear the octomap
         rospy.loginfo('Waiting for clear_octomap')
-        rospy.wait_for_service('/clear_octomap')
+        rospy.wait_for_service('/clear_octomap', 5)
         self._clear_octomap = rospy.ServiceProxy('/clear_octomap', Empty)
         rospy.loginfo('Got clear_octomap')
 
