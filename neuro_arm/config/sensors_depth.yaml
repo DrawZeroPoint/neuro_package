@@ -1,8 +1,11 @@
 # This file configures the DepthImageOctomapUpdater. It's faster than the PointCloudOctomapUpdater,
 # but it doesn't work in Gazebo (because the simulated depth image is broken).
+
+# When Octomap refreshes, it clears the cells intersecting a ray up to the point it hits an actual (current) obstacle.
+# Octomap has no way of knowing if the points beyond the ray hit are occupied or not, hence does not clear them.
 sensors:
   - sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
-    image_topic: /vision/depth/except_object_1
+    image_topic: /vision/depth/except_object
     far_clipping_plane_distance: 1.5
     near_clipping_plane_distance: 0.25
     padding_scale: 1.0

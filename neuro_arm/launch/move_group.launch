@@ -34,7 +34,7 @@
 
   <!-- sensor settings -->
   <!-- whether to use the pointcloud (on Gazebo) or depth image (on real robot) octomap updater -->
-  <arg name="use_pointcloud" default="false"/>
+  <arg name="use_pointcloud" default="true"/>
   <!-- Sensors Functionality -->
   <include ns="move_group" file="$(find neuro_arm)/launch/sensor_manager.launch.xml" if="$(arg allow_trajectory_execution)">
     <arg name="moveit_sensor_manager" default="neuro" />
