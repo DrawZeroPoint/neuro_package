@@ -339,6 +339,8 @@ class ArmControl:
                 self._use_fk = rospy.get_param('/param/arm/left/use_fk')
 
             pub_signal(1)  # Yellow for starting
+            # Clear octomap generated during approaching to the target before grasping
+            self._clear_octomap()
             if self._use_fk:
                 rospy.loginfo('Left arm: Using forward kinetic.')
                 run_grasp_fk()
@@ -348,14 +350,13 @@ class ArmControl:
             self._planed = True
             # Since we add table before grasp, we need remove it after grasp
             delete_table()
-            # Clear octomap generated during approaching to the target after grasping
-            self._clear_octomap()
             pub_signal(0)  # Green for finish
         else:
             pass
 
     def _target_loc_cb(self, pose):
-        self._clear_octomap()
+        # self._clear_octomap()
+        pass
 
     def _put_pose_cb(self, pose):
         if self._planed:
@@ -363,9 +364,9 @@ class ArmControl:
             # so that we can put it down, meanwhile, we can reset _planed and the arm
             self._planed = False
             pub_signal(1)  # Yellow for starting
+            self._clear_octomap()
             run_put_fk(pose)
             # run_put_ik(pose)
-            self._clear_octomap()
             pub_signal(0)  # Green for finish
 
     @staticmethod
