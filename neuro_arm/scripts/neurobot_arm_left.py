@@ -335,8 +335,8 @@ class ArmControl:
     def _target_pose_cb(self, pose):
         if not self._planed:
             # Recheck the method param
-            if rospy.has_param('/param/arm/left/use_fk'):
-                self._use_fk = rospy.get_param('/param/arm/left/use_fk')
+            if rospy.has_param('/arm/param/left/use_fk'):
+                self._use_fk = rospy.get_param('/arm/param/left/use_fk')
 
             pub_signal(1)  # Yellow for starting
             # Clear octomap generated during approaching to the target before grasping
@@ -422,7 +422,7 @@ class NodeMain:
             use_fk = rospy.get_param('~use_fk')
         else:
             rospy.logwarn("Param use_fk not available, use fk by default.")
-        rospy.set_param('/param/arm/left/use_fk', use_fk)
+        rospy.set_param('/arm/param/left/use_fk', use_fk)
 
         ArmControl(vision_grasp_pose, vision_grasp_loc, vision_detect_table, vision_put_pose,
                    voice_ctrl_arm, arm_feed_result, use_fk)
