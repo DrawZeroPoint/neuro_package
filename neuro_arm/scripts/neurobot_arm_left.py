@@ -46,7 +46,7 @@ scene = PlanningSceneInterface()
 map_frame = 'map'  # Reference frame for scene
 
 # Publish inverse kinetic result
-ik_result_pub = rospy.Publisher('/feed/arm/left/ik/plan/result', Int8, queue_size=1)
+ik_result_pub = rospy.Publisher('/feed/arm/left/plan/result', Int8, queue_size=1)
 # Publish signal when start moving
 signal_pub = rospy.Publisher('/vision/error', UInt16, queue_size=1)
 # Param to control is putting down object
