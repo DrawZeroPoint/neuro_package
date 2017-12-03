@@ -3,7 +3,7 @@
 sensors:
   - sensor_plugin: occupancy_map_monitor/DepthImageOctomapUpdater
     image_topic: /vision/depth/except_object
-    far_clipping_plane_distance: 3.0
+    far_clipping_plane_distance: 1.5
     near_clipping_plane_distance: 0.25
     padding_scale: 1.0
     padding_offset: 0.1
