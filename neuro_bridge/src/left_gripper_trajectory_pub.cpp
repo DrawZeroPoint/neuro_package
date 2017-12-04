@@ -42,7 +42,7 @@ int main(int argc,char **argv)
   ros::Subscriber sub = n.subscribe("/left_gripper_controller/follow_joint_trajectory/goal", 5, Callback);
   
   std_msgs::Float32 gripper_state;
-  ros::Publisher gripper_pub = n.advertise<std_msgs::Float32>("gripper_pos", 5);
+  ros::Publisher gripper_pub = n.advertise<std_msgs::Float32>("gripper_pos_left", 5);
   
   while (n.ok()) {
     if(!trajectories_gripper.empty()) {
