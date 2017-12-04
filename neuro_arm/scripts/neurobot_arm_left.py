@@ -11,7 +11,7 @@ from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped
 
 left_gripper_open = [1.5]
-left_gripper_close = [0.2]
+left_gripper_close = [0.4]
 
 # Recommended table height: 0.89
 # frame distance in z direction
