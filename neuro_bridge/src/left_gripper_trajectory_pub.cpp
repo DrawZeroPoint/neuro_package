@@ -36,7 +36,7 @@ void Callback(const control_msgs::FollowJointTrajectoryActionGoal::ConstPtr& msg
 
 int main(int argc,char **argv)
 {
-  ros::init(argc,argv,"trackgripper_trajectory_controller");
+  ros::init(argc,argv,"left_gripper_trajectory_controller");
   ros::NodeHandle n;
   
   ros::Subscriber sub = n.subscribe("/left_gripper_controller/follow_joint_trajectory/goal", 5, Callback);
