@@ -2,6 +2,8 @@
 
 import rospy
 import sys
+import numpy as np
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 import moveit_commander
 from moveit_commander import PlanningSceneInterface
 # from moveit_msgs.msg import CollisionObject, Grasp
@@ -11,7 +13,7 @@ from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped
 
 left_gripper_open = [1.5]
-left_gripper_close = [0.4]
+left_gripper_close = [0.3]
 
 # Recommended table height: 0.89
 # frame distance in z direction
@@ -60,6 +62,22 @@ current_status = 'left_arm_init'
 # rosrun tf static_transform_publisher --args=0 0 0 0 0 0 odom base_footprint 100
 
 
+# Get the coord near the target which has same orientation with the target
+def get_prepare_pose(offset, target_pose):
+    # Get Euler angle from orientation
+    orientation_q = target_pose.pose.pose.orientation
+    orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
+    (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
+    # For now we assume only yaw!=0
+    pose = PoseStamped()
+    pose.header = target_pose.header
+    pose.pose.position.x = target_pose.pose.position.x - offset * np.cos(yaw)
+    pose.pose.position.y = target_pose.pose.position.y - offset * np.sin(yaw)
+    pose.pose.position.z = target_pose.pose.position.z
+    pose.pose.orientation = target_pose.pose.orientation
+    return pose
+
+
 def pub_signal(code):
     # Publish start signal
     signal = UInt16()
@@ -73,9 +91,7 @@ def add_table(pose):
     # The length (0.5) and width (0.7) of table is predefined here
     size = [0.5, 0.7, (pose.pose.position.z + link_to_foot_) * 2]
 
-    # We can not use attach method cause the map frame is not in robot definition
-    # scene.remove_attached_object(reference_frame, table_id)  # Clear previous table
-    # scene.attach_box(reference_frame, table_id, pose, size)
+    # We can not use attach method cause the pose frame we want to use (odom) is not in robot frame list
     scene.remove_world_object(table_id)
     scene.add_box(table_id, pose, size)
 
@@ -110,7 +126,7 @@ def reset():
     gripper_open(False)
 
 
-def back_to_prepare_pose():
+def to_prepare_pose():
     left_arm.set_named_target('left_arm_pose_pre')
     left_arm.go()
     global current_status
@@ -140,17 +156,10 @@ def run_grasp_ik(pose):
         # Use forward kinetic to get to initial position
         # Open gripper, no need for delay
         gripper_open(True)
-
-        # move forward
-        left_arm.set_named_target('left_arm_pose_pre')
-        left_arm.go()
+        to_prepare_pose()
 
     # First get near to the target
-    target_pose_pre = pose  # Input pose is in base_link frame
-    target_pose_pre.header.frame_id = reference_frame
-    target_pose_pre.header.stamp = rospy.Time.now()
-    # Notice that in python, -= will also influence pose
-    target_pose_pre.pose.position.x -= 0.1
+    target_pose_pre = get_prepare_pose(0.1, pose)
 
     # Set the goal pose of the end effector to the prepare pose
     left_arm.set_pose_target(target_pose_pre, left_eef)
@@ -158,13 +167,8 @@ def run_grasp_ik(pose):
     # Plan the trajectory to the goal
     traj = left_arm.plan()
     if ik_result_check_and_run(traj):
-        target_pose = pose  # Input pose is in base_link frame
-        target_pose.header.frame_id = reference_frame
-        target_pose.header.stamp = rospy.Time.now()
-        target_pose.pose.position.x += 0.1
-
         # Set the goal pose of the end effector to the stored pose
-        left_arm.set_pose_target(target_pose, left_eef)
+        left_arm.set_pose_target(pose, left_eef)
 
         # Plan the trajectory to the goal
         traj = left_arm.plan()
@@ -182,7 +186,7 @@ def run_grasp_ik(pose):
         rospy.logwarn('Left arm: No plan for prepare pose.')
 
     # All situation end up in pose 1
-    back_to_prepare_pose()
+    to_prepare_pose()
 
 
 def run_put_ik(pose):
@@ -228,7 +232,7 @@ def run_put_ik(pose):
         rospy.logwarn('Left arm: No plan for prepare putting.')
 
     # Back to prepare pose
-    back_to_prepare_pose()
+    to_prepare_pose()
 
 
 def run_put_fk(pose):
@@ -252,7 +256,7 @@ def run_put_fk(pose):
     gripper_open(True)
 
     # Back to prepare pose
-    back_to_prepare_pose()
+    to_prepare_pose()
 
 
 def run_grasp_fk():
@@ -260,9 +264,7 @@ def run_grasp_fk():
         # Use forward kinetic to get to initial position
         # Open gripper, no need for delay
         gripper_open(True)
-        # move forward
-        left_arm.set_named_target('left_arm_pose_pre')
-        left_arm.go()
+        to_prepare_pose()
 
     # move forward down
     joint_pos_tgt = [0.5, 0.1, 0, 0.65, 1.57, 0.4]
@@ -278,7 +280,7 @@ def run_grasp_fk():
     traj = left_arm.plan()
     left_arm.execute(traj)
     # Back to prepare pose
-    back_to_prepare_pose()
+    to_prepare_pose()
 
 
 def run_test(joint_id):
