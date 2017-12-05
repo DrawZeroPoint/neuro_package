@@ -65,7 +65,7 @@ current_status = 'left_arm_init'
 # Get the coord near the target which has same orientation with the target
 def get_prepare_pose(offset, target_pose):
     # Get Euler angle from orientation
-    orientation_q = target_pose.pose.pose.orientation
+    orientation_q = target_pose.pose.orientation
     orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
     (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
     # For now we assume only yaw!=0
