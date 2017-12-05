@@ -68,6 +68,7 @@ def get_prepare_pose(offset, target_pose):
     orientation_q = target_pose.pose.orientation
     orientation_list = [orientation_q.x, orientation_q.y, orientation_q.z, orientation_q.w]
     (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
+    yaw = 1
     # For now we assume only yaw!=0
     pose = PoseStamped()
     pose.header = target_pose.header
