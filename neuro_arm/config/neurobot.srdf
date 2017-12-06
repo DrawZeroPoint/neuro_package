@@ -53,7 +53,7 @@
         <joint name="left_arm_joint3" value="0" />
         <joint name="left_arm_joint4" value="1.64" />
         <joint name="left_arm_joint5" value="1.57" />
-        <joint name="left_arm_joint6" value="0.4" />
+        <joint name="left_arm_joint6" value="0" />
     </group_state>
 
     <group_state name="left_arm_pose2" group="left_arm">
