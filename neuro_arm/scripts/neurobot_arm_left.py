@@ -12,8 +12,9 @@ from std_msgs.msg import Int8, UInt16
 from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped
 
-left_gripper_open = [1.55]
-left_gripper_close = [0.25]
+gripper_open = 1.55
+gripper_hold = 0.5
+gripper_close = 0.25
 
 # Recommended table height: 0.89
 # frame distance in z direction
@@ -106,11 +107,12 @@ def move(direction, offset):
     left_arm.go()
 
 
-def gripper_open(status):
+def gripper_open(status, angle):
+    angle_val = [angle]
     if status:
-        left_gripper.set_joint_value_target(left_gripper_open)
+        left_gripper.set_joint_value_target(angle_val)
     else:
-        left_gripper.set_joint_value_target(left_gripper_close)
+        left_gripper.set_joint_value_target(angle_val)
     left_gripper.go()
 
 
@@ -123,7 +125,7 @@ def reset():
     global current_status
     current_status = 'left_arm_init'
     # Close the hand
-    gripper_open(False)
+    gripper_open(False, gripper_close)
 
 
 def to_prepare_pose():
@@ -163,7 +165,7 @@ def run_grasp_ik(pose):
     if current_status != 'left_arm_pose_pre':
         # Use forward kinetic to get to initial position
         # Open gripper, no need for delay
-        gripper_open(True)
+        gripper_open(True, gripper_open)
         to_prepare_pose()
 
     # First get near to the target
@@ -184,7 +186,7 @@ def run_grasp_ik(pose):
         if ik_result_check_and_run(traj):
             # Wait to be steady
             rospy.sleep(1)
-            gripper_open(False)
+            gripper_open(False, gripper_close)
             # Pull up, value is angle in radius
             pull_up(0.2)
             # move backward
@@ -231,7 +233,7 @@ def run_put_ik(pose):
         traj = left_arm.plan()
         if ik_result_check_and_run(traj):
             # Open gripper and drop the object
-            gripper_open(True)
+            gripper_open(True, gripper_open)
             # Wait to be steady
             rospy.sleep(1)
             # Move backward
@@ -262,8 +264,10 @@ def run_put_fk(pose):
     left_arm.execute(traj)
     # Wait to be steady
     rospy.sleep(1)
+    # Half open the gripper
+    gripper_open(True, gripper_hold)
     # Open gripper and drop the object
-    gripper_open(True)
+    gripper_open(True, gripper_open)
 
     # Back to prepare pose
     to_prepare_pose()
@@ -273,7 +277,7 @@ def run_grasp_fk():
     if current_status != 'left_arm_pose_pre':
         # Use forward kinetic to get to initial position
         # Open gripper, no need for delay
-        gripper_open(True)
+        gripper_open(True, gripper_open)
         to_prepare_pose()
 
     # move forward down
@@ -282,7 +286,7 @@ def run_grasp_fk():
     traj = left_arm.plan()
     left_arm.execute(traj)
 
-    gripper_open(False)  # close the gripper, no delay
+    gripper_open(False, gripper_close)  # close the gripper, no delay
 
     # move up
     joint_pos_tgt = [0.47, 0, 0, 1.2, 1.57, 0.33]
@@ -396,7 +400,7 @@ class ArmControl:
             reset()
             self._planed = False
         elif data.data == 2:
-            gripper_open(True)
+            gripper_open(True, gripper_open)
             self._planed = False
         elif data.data == 3:
             move(0, 0.05)
