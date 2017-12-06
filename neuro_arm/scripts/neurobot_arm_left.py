@@ -12,8 +12,8 @@ from std_msgs.msg import Int8, UInt16
 from std_srvs.srv import Empty
 from geometry_msgs.msg import PoseStamped
 
-left_gripper_open = [1.5]
-left_gripper_close = [0.3]
+left_gripper_open = [1.55]
+left_gripper_close = [0.25]
 
 # Recommended table height: 0.89
 # frame distance in z direction
@@ -159,7 +159,7 @@ def run_grasp_ik(pose):
         to_prepare_pose()
 
     # First get near to the target
-    target_pose_pre = get_prepare_pose(0.1, pose)
+    target_pose_pre = get_prepare_pose(0.05, pose)
 
     # Set the goal pose of the end effector to the prepare pose
     left_arm.set_pose_target(target_pose_pre, left_eef)
