@@ -151,6 +151,13 @@ def ik_result_check_and_run(traj):
     return flag.data
 
 
+def pull_up(up):
+    joints = left_arm.get_current_joint_values()
+    joints[0] += up
+    left_arm.set_joint_value_target(joints)
+    left_arm.go()
+
+
 def run_grasp_ik(pose):
     if current_status != 'left_arm_pose_pre':
         # Use forward kinetic to get to initial position
@@ -177,6 +184,8 @@ def run_grasp_ik(pose):
             # Wait to be steady
             rospy.sleep(1)
             gripper_open(False)
+            # Pull up
+            pull_up(0.03)
             # move backward
             left_arm.set_named_target('left_arm_pose1')
             left_arm.go()
