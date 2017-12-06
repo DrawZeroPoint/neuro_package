@@ -154,6 +154,7 @@ def ik_result_check_and_run(traj):
 def pull_up(up):
     joints = left_arm.get_current_joint_values()
     joints[0] += up
+    joints[5] -= up
     left_arm.set_joint_value_target(joints)
     left_arm.go()
 

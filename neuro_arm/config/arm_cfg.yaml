@@ -10,7 +10,7 @@ joints: {
   left_arm_joint1: {id: 1, neutral: 512, min_angle: -90, max_angle: 90},
   left_arm_joint2: {id: 2, neutral: 512, min_angle: 0, max_angle: 90},
   left_arm_joint3: {id: 3, neutral: 512, min_angle: -126, max_angle: 126},
-  left_arm_joint4: {id: 4, neutral: 512, min_angle: -90, max_angle: 96},
+  left_arm_joint4: {id: 4, neutral: 512, min_angle: 0, max_angle: 96},
   left_arm_joint5: {id: 5, neutral: 512, min_angle: -126, max_angle: 126},
   left_arm_joint6: {id: 6, neutral: 512, min_angle: -90, max_angle: 90},
   left_joint_gripper_r: {id: 8, neutral: 512, min_angle: 0, max_angle: 90},
