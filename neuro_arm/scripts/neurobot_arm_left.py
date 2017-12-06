@@ -184,8 +184,8 @@ def run_grasp_ik(pose):
             # Wait to be steady
             rospy.sleep(1)
             gripper_open(False)
-            # Pull up
-            pull_up(0.03)
+            # Pull up, value is angle in radius
+            pull_up(0.3)
             # move backward
             left_arm.set_named_target('left_arm_pose1')
             left_arm.go()
