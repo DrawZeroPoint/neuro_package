@@ -167,7 +167,7 @@ def run_grasp_ik(pose):
         to_prepare_pose()
 
     # First get near to the target
-    target_pose_pre = get_prepare_pose(0.05, pose)
+    target_pose_pre = get_prepare_pose(0.06, pose)
 
     # Set the goal pose of the end effector to the prepare pose
     left_arm.set_pose_target(target_pose_pre, left_eef)
@@ -186,7 +186,7 @@ def run_grasp_ik(pose):
             rospy.sleep(1)
             gripper_open(False)
             # Pull up, value is angle in radius
-            pull_up(0.3)
+            pull_up(0.2)
             # move backward
             left_arm.set_named_target('left_arm_pose1')
             left_arm.go()
