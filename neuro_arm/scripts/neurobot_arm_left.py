@@ -184,8 +184,6 @@ def run_grasp_ik(pose):
         traj = left_arm.plan()
 
         if ik_result_check_and_run(traj):
-            # Wait to be steady
-            rospy.sleep(1)
             gripper_set_open(False, gripper_close)
             # Pull up, value is angle in radius
             pull_up(0.2)
@@ -263,7 +261,7 @@ def run_put_fk(pose):
     traj = left_arm.plan()
     left_arm.execute(traj)
     # Wait to be steady
-    rospy.sleep(1)
+    rospy.sleep(0.5)
     # Half open the gripper
     gripper_set_open(True, gripper_hold)
     # Open gripper and drop the object
